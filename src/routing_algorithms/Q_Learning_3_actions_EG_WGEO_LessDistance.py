@@ -5,6 +5,9 @@ DI DRONI CHE SONO INIZIALIZZATI LÃ€
 L'IDEA ORA È CHE OGNI NODO È UNO STATO E LE AZIONI SONO TUTTI I POSSIBILI INVII AI
 NODI VICINI PER UN DETERMINATO PACCHETTO
 
+LA DIFFERENZA RISPETTO AD EG_WGEO È CHE SI VA AL DEPOT, NEL CASO RANDOM, SOLO SE LA DISTANZA È SIGNIFICATIVAMENTE BASSA,
+ALTRIMENTI NON LO SI FA
+
 """
 
 from operator import ne
@@ -459,7 +462,7 @@ class AIRouting(BASE_routing):
     
 
             # Action MOVE is identified by -1
-            if len(opt_neighbors) == 0:
+            if len(opt_neighbors) == 0 and best_drone_distance_from_depot < 500:
                 
                 
                 m = max(l)

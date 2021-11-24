@@ -5,6 +5,10 @@ DI DRONI CHE SONO INIZIALIZZATI LÃ€
 L'IDEA ORA È CHE OGNI NODO È UNO STATO E LE AZIONI SONO TUTTI I POSSIBILI INVII AI
 NODI VICINI PER UN DETERMINATO PACCHETTO
 
+AZIONI PER OGNI POSSIBILE NODO VICINO
+
+CON OIV
+
 """
 
 from operator import ne
@@ -87,10 +91,6 @@ class AIRouting(BASE_routing):
         # do something or train the model (?)
         
         print(self, drone, id_event, delay, outcome)
-        
-        
-            
-            
             
             
             
@@ -142,53 +142,54 @@ class AIRouting(BASE_routing):
             
             except Exception as e:
                 
-                temp_, max_q = 0, 0
+                temp_, max_q = None, 0
             
             
             #in this way we also consider the action of return -1 
-            if (temp_ == -1):
+            if (temp_ == '-1'):
                 
                
                 try:
                 
-                    q[(drone.identifier, 2)] = q[(drone.identifier, 2)] + alpha*(R + gamma* max_q - q[(drone.identifier, 2)] )
+                    q[(drone.identifier, '-1')] = q[(drone.identifier, '-1')] + alpha*(R + gamma* max_q - q[(drone.identifier, '-1')] )
                 
                 except Exception as e:
                     
-                    q[(drone.identifier, 2)] = 10
+                    q[(drone.identifier, '-1')] = 10
                     
-                    q[(drone.identifier, 2)] = q[(drone.identifier, 2)] + alpha*(R + gamma* max_q - q[(drone.identifier, 2)] )
+                    q[(drone.identifier, '-1')] = q[(drone.identifier, '-1')] + alpha*(R + gamma* max_q - q[(drone.identifier, '-1')] )
                 
                 
             #the packet remain to the node
-            elif(temp_ == 0):
+            elif(temp_ == None):
         
                 
                 try:
         
-                    q[(drone.identifier, 0)] = q[(drone.identifier, 0)] + alpha*(R + gamma* max_q - q[(drone.identifier, 0)])
+                    q[(drone.identifier, None)] = q[(drone.identifier, None)] + alpha*(R + gamma* max_q - q[(drone.identifier, None)])
                 
                 except Exception as e:
                     
-                    q[(drone.identifier, 0)] = 10
+                    q[(drone.identifier, None)] = 10
                     
-                    q[(drone.identifier, 0)] = q[(drone.identifier, 0)] + alpha*(R + gamma* max_q - q[(drone.identifier, 0)])
+                    q[(drone.identifier, None)] = q[(drone.identifier, None)] + alpha*(R + gamma* max_q - q[(drone.identifier, None)])
                 
         
             
-            #the packet was passed to another drone
-            elif (temp_ == 1):
+            #the packet was passed to another drone (it's specified the drone
+            #because we are considering each action)
+            else:
                 
                 
                 try:
                 
-                    q[(drone.identifier, 1)] = q[(drone.identifier, 1)] + alpha*(R + gamma* max_q - q[(drone.identifier, 1)] )
+                    q[(drone.identifier, temp_)] = q[(drone.identifier, temp_)] + alpha*(R + gamma* max_q - q[(drone.identifier, temp_)] )
                 
                 except Exception as e:
                     
-                    q[(drone.identifier, 1)] = 10
+                    q[(drone.identifier, temp_)] = 10
 
-                    q[(drone.identifier, 1)] = q[(drone.identifier, 1)] + alpha*(R + gamma* max_q - q[(drone.identifier, 1)] )
+                    q[(drone.identifier, temp_)] = q[(drone.identifier, temp_)] + alpha*(R + gamma* max_q - q[(drone.identifier, temp_)] )
 
                 
             
@@ -225,53 +226,49 @@ class AIRouting(BASE_routing):
             #we calculate what is the best action to perform, if it is 
             #the action of None, -1 or pass to any neighbour
             
-            try:
+            flag = 0
             
-                a = q[(self.drone.identifier, 0)]
+            #by default we return None
+            max_key = 0
             
-            except:
+            
+            for key, key2 in q:
                 
-                q[(self.drone.identifier, 0)] = 10
-            
+                if (flag == 0):
+                    
+                    flag = 1
+                    
+                    max_element = q[(key,key2)]
+                    
+                    max_key = key2
                 
-                a = q[(self.drone.identifier, 0)]
+                else:
+                    
+                    if (q[(key, key2)] > max_element):
+                        
+                        max_element = q[(key,key2)]
+                        
+                        max_key = key2
+                    
             
-            try:
-            
-                b = q[(self.drone.identifier, 1)]
-            
-            except Exception as e:
-
-                q[(self.drone.identifier, 1)] = 10
-
-                b = q[(self.drone.identifier, 1)]
-
-            try:
-
-                c = q[(self.drone.identifier, 2)]
-            
-            except Exception as e:
-                
-                q[(self.drone.identifier, 2)] = 10
-                
-                c = q[(self.drone.identifier, 2)]
             
             
             
             #if the best action is to maintain the packet and remain to
             #our trajectory
-            if (a >= b and a >= c):
+            if (max_key == None):
                 
-                #we calculate the maximum value of the three possible actions
+                
+                
+                #we calculate the maximum value of the n possible actions
                 #NOT NECESSARY TRY-EXCEPT, EXECUTED JUST BEFORE
-                l = [q[(self.drone.identifier, 0)], q[(self.drone.identifier, 1)], q[(self.drone.identifier, 2)]]
-                m = max(l)
+                m = max_element
                 
                 #we set, in a global variable, that this drone 
                 #for this packet has perform the action to maintain
                 #the packet and to remain to its trajectory and it is
                 #saved also the maximum possible value
-                s[(self.drone.identifier, pkd.event_ref.identifier)] = (0, m)
+                s[(self.drone.identifier, pkd.event_ref.identifier)] = (None, m)
                 
                 
                 
@@ -289,15 +286,15 @@ class AIRouting(BASE_routing):
             
             #if the better action is to go to the depot, then this means
             #that we want do the same of the previous if, in practise
-            if (c >= a and c >= b):
+            elif (max_key == '-1'):
                 
                 #we take the maximum value, for the reward calculation
                 #NOT NECESSARY TRY-EXCEPT, EXECUTED JUST BEFORE
-                l = [q[(self.drone.identifier, 0)], q[(self.drone.identifier, 1)], q[(self.drone.identifier, 2)]]
-                m = max(l)
+                
+                m = max_element
                 
                 #we save this result, in practise
-                s[(self.drone.identifier, pkd.event_ref.identifier)] = (-1, m)
+                s[(self.drone.identifier, pkd.event_ref.identifier)] = ('-1', m)
                 
                 try:
                     v_star[self.drone.identifier] = v_star[self.drone.identifier] + m
@@ -313,13 +310,13 @@ class AIRouting(BASE_routing):
                 return -1
             
             #if the best choice to do is to pass the packet to the neighbors
-            if (b >= a and b >= c):
+            else: #max_key is for another drone
                 
                 "FIRST PHASE -- TAKE MAX Rs FOR a -- SLIDE 32"
                 #we take the maximum value, for the reward calculation
                 #NOT NECESSARY TRY-EXCEPT, EXECUTED JUST BEFORE
-                l = [q[(self.drone.identifier, 0)], q[(self.drone.identifier, 1)], q[(self.drone.identifier, 2)]]
-                m = max(l)
+                
+                m = max_element
                 
                 #we initialize two differente variables to do some things
                 sum_v_star = 0
@@ -364,9 +361,35 @@ class AIRouting(BASE_routing):
                 #max of possible actions
                 return_m = m
                 
+                
+                "ADDITIONAL PHASE -- COUNT NUMBER OF DRONES, FOR NOW"
+                "AT MOST WE CATCH SOME EXCEPTIONS"
+                
+                
+                max_count = 0
+                
+                
+                
+                for key, key2 in q:
+                    
+                    if (key2 == '-1' or key2 == None):
+                        
+                        continue
+                        
+                    
+                    if key2 >= max_count:
+                        
+                        max_count = key2
+                        
+                        
+                        
+                    
+                    
+                
+                
                 "FOURTH PHASE -- SELECT THE BEST NEIGHBOR POSSIBLE, WITH"
                 "HIGHEST VALUE LEARNED"
-                for i in range(3):
+                for i in range(max_count):
                     
                     for hello_packet, drone_istance in opt_neighbors:
                      
@@ -394,11 +417,11 @@ class AIRouting(BASE_routing):
                 #successive phase of feedback
                 if (max_action == None):
                     
-                    s[(self.drone.identifier, pkd.event_ref.identifier)] = (0, return_m)
+                    s[(self.drone.identifier, pkd.event_ref.identifier)] = (None, return_m)
                 
                 else:
                     
-                    s[(max_action.identifier, pkd.event_ref.identifier)] = (1, return_m)
+                    s[(max_action.identifier, pkd.event_ref.identifier)] = (max_key, return_m)
                 
                 
                 return max_action
@@ -419,42 +442,31 @@ class AIRouting(BASE_routing):
             max_action = None
 
             
-            l = []
+            flag = 0
+            
+            #by default we return None
+            max_key = 0
             
             
-            #we take the maximum value, for the reward calculation
-            try:
+            for key, key2 in q:
                 
-                l.append(q[(self.drone.identifier, 0)])
+                if (flag == 0):
+                    
+                    flag = 1
+                    
+                    max_element = q[(key,key2)]
+                    
+                    max_key = key2
                 
-            except Exception as e:
-                
-                q[(self.drone.identifier, 0)] = 10
-                
-                l.append(q[(self.drone.identifier, 0)])
-                
+                else:
+                    
+                    if (q[(key, key2)] > max_element):
+                        
+                        max_element = q[(key,key2)]
+                        
+                        max_key = key2
+                    
             
-            try:
-                
-                l.append(q[(self.drone.identifier, 1)])
-                
-            except Exception as e:
-                
-                q[(self.drone.identifier, 1)] = 10
-                
-                l.append(q[(self.drone.identifier, 1)])
-                
-                
-            try:
-                
-                l.append(q[(self.drone.identifier, 2)])
-                
-            except Exception as e:
-                
-                q[(self.drone.identifier, 2)] = 10
-                
-                l.append(q[(self.drone.identifier, 2)])
-                
             
     
 
@@ -462,10 +474,10 @@ class AIRouting(BASE_routing):
             if len(opt_neighbors) == 0:
                 
                 
-                m = max(l)
+                m = max_element
                 
                 #we save this result, in practise
-                s[(self.drone.identifier, pkd.event_ref.identifier)] = (-1, m)
+                s[(self.drone.identifier, pkd.event_ref.identifier)] = ('-1', m)
                 
                 try:
                     v_star[self.drone.identifier] = v_star[self.drone.identifier] + m
@@ -485,7 +497,7 @@ class AIRouting(BASE_routing):
             #we take the maximum value, for the reward calculation
             #this is the ELSE part
             
-            m = max(l)
+            m = max_element
             
             #we initialize two differente variables to do some things
             sum_v_star = 0
@@ -531,8 +543,6 @@ class AIRouting(BASE_routing):
             
             
             
-            
-
 
             for hpk, drone_istance in opt_neighbors:
                 
@@ -542,16 +552,31 @@ class AIRouting(BASE_routing):
                     best_drone_distance_from_depot = exp_distance
                     max_action = drone_istance
                     
-                    try:
+                    #IT'S NECESSARY FOR RETURN_M, IN PRACTISE
+                    flag = 0
                     
-                        return_m = q[(drone_istance.identifier, 1)]
+                    #by default we return None
+                    max_key = 0
                     
-                    except Exception as e:
+                    max_element = 10
+                    
+                    
+                    for key, key2 in q:
                         
-                        q[(drone_istance.identifier, 1)] = 10
                         
-                        return_m = q[(drone_istance.identifier, 1)]
                     
+                        
+                        if (q[(key, key2)] > max_element
+                            and key == drone_istance.identifier):
+                            
+                            max_element = q[(key,key2)]
+                            
+                            max_key = key2
+                        
+                    
+                    return_m = max_element
+                    
+                   
                     
 
 
@@ -560,13 +585,13 @@ class AIRouting(BASE_routing):
             if (max_action == None):
                 
                 
-                m = max(l)
+                m = max_element
                 
                 #we set, in a global variable, that this drone 
                 #for this packet has perform the action to maintain
                 #the packet and to remain to its trajectory and it is
                 #saved also the maximum possible value
-                s[(self.drone.identifier, pkd.event_ref.identifier)] = (0, return_m)
+                s[(self.drone.identifier, pkd.event_ref.identifier)] = (None, return_m)
                 
                 
                 
@@ -584,7 +609,7 @@ class AIRouting(BASE_routing):
             
             else:
                 
-                s[(max_action.identifier, pkd.event_ref.identifier)] = (1, return_m)
+                s[(max_action.identifier, pkd.event_ref.identifier)] = (max_key, return_m)
             
             
 
@@ -613,7 +638,7 @@ class AIRouting(BASE_routing):
         print("Salut", c)
         print(epsilon)
         """
-        
+        print(q)
         pass
 
     

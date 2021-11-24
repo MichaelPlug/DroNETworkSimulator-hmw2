@@ -5,6 +5,8 @@ DI DRONI CHE SONO INIZIALIZZATI LÃ€
 L'IDEA ORA È CHE OGNI NODO È UNO STATO E LE AZIONI SONO TUTTI I POSSIBILI INVII AI
 NODI VICINI PER UN DETERMINATO PACCHETTO
 
+-- CON OIV --
+
 """
 
 from operator import ne
@@ -145,23 +147,9 @@ class AIRouting(BASE_routing):
                 temp_, max_q = 0, 0
             
             
-            #in this way we also consider the action of return -1 
-            if (temp_ == -1):
-                
-               
-                try:
-                
-                    q[(drone.identifier, 2)] = q[(drone.identifier, 2)] + alpha*(R + gamma* max_q - q[(drone.identifier, 2)] )
-                
-                except Exception as e:
-                    
-                    q[(drone.identifier, 2)] = 10
-                    
-                    q[(drone.identifier, 2)] = q[(drone.identifier, 2)] + alpha*(R + gamma* max_q - q[(drone.identifier, 2)] )
-                
-                
+           
             #the packet remain to the node
-            elif(temp_ == 0):
+            if(temp_ == 0):
         
                 
                 try:
@@ -246,25 +234,16 @@ class AIRouting(BASE_routing):
 
                 b = q[(self.drone.identifier, 1)]
 
-            try:
-
-                c = q[(self.drone.identifier, 2)]
-            
-            except Exception as e:
-                
-                q[(self.drone.identifier, 2)] = 10
-                
-                c = q[(self.drone.identifier, 2)]
             
             
             
             #if the best action is to maintain the packet and remain to
             #our trajectory
-            if (a >= b and a >= c):
+            if (a >= b):
                 
                 #we calculate the maximum value of the three possible actions
                 #NOT NECESSARY TRY-EXCEPT, EXECUTED JUST BEFORE
-                l = [q[(self.drone.identifier, 0)], q[(self.drone.identifier, 1)], q[(self.drone.identifier, 2)]]
+                l = [q[(self.drone.identifier, 0)], q[(self.drone.identifier, 1)]]
                 m = max(l)
                 
                 #we set, in a global variable, that this drone 
@@ -287,38 +266,14 @@ class AIRouting(BASE_routing):
                 #do anything
                 return None
             
-            #if the better action is to go to the depot, then this means
-            #that we want do the same of the previous if, in practise
-            if (c >= a and c >= b):
-                
-                #we take the maximum value, for the reward calculation
-                #NOT NECESSARY TRY-EXCEPT, EXECUTED JUST BEFORE
-                l = [q[(self.drone.identifier, 0)], q[(self.drone.identifier, 1)], q[(self.drone.identifier, 2)]]
-                m = max(l)
-                
-                #we save this result, in practise
-                s[(self.drone.identifier, pkd.event_ref.identifier)] = (-1, m)
-                
-                try:
-                    v_star[self.drone.identifier] = v_star[self.drone.identifier] + m
-                
-                except Exception as e:
-                    
-                    v_star[self.drone.identifier] = 0
-                    v_star[self.drone.identifier] = v_star[self.drone.identifier] + m
-                
-                
-                #at the end we perform the action to go to the depot, so
-                #we left the mission for this purpose
-                return -1
             
             #if the best choice to do is to pass the packet to the neighbors
-            if (b >= a and b >= c):
+            if (b >= a):
                 
                 "FIRST PHASE -- TAKE MAX Rs FOR a -- SLIDE 32"
                 #we take the maximum value, for the reward calculation
                 #NOT NECESSARY TRY-EXCEPT, EXECUTED JUST BEFORE
-                l = [q[(self.drone.identifier, 0)], q[(self.drone.identifier, 1)], q[(self.drone.identifier, 2)]]
+                l = [q[(self.drone.identifier, 0)], q[(self.drone.identifier, 1)]]
                 m = max(l)
                 
                 #we initialize two differente variables to do some things
@@ -445,16 +400,7 @@ class AIRouting(BASE_routing):
                 l.append(q[(self.drone.identifier, 1)])
                 
                 
-            try:
-                
-                l.append(q[(self.drone.identifier, 2)])
-                
-            except Exception as e:
-                
-                q[(self.drone.identifier, 2)] = 10
-                
-                l.append(q[(self.drone.identifier, 2)])
-                
+           
             
     
 

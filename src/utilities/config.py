@@ -3,9 +3,9 @@ from src.routing_algorithms.georouting import GeoRouting
 from src.routing_algorithms.georouting_w_move import GeoMoveRouting
 from src.routing_algorithms.random_routing import RandomRouting
 from src.routing_algorithms.closeset_to_me_routing import CloRouting
-#from src.routing_algorithms.ai_routing import AIRouting
+from src.routing_algorithms.ai_routing import AIRouting
 #from src.routing_algorithms.Q_Learning_3_actions_EGN import AIRouting
-from src.routing_algorithms.Q_Learning_3_actions_EG_WGEO import AIRouting
+#from src.routing_algorithms.Q_Learning_3_actions_EG_WGEO import AIRouting
 
 
 from enum import Enum
