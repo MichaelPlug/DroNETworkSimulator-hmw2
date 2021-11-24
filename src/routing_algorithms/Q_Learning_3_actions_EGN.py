@@ -389,7 +389,7 @@ class AIRouting(BASE_routing):
                 #successive phase of feedback
                 if (max_action == None):
                     
-                    s[(self.drone.identifier, pkd.event_ref.identifier)] = (1, return_m)
+                    s[(self.drone.identifier, pkd.event_ref.identifier)] = (0, return_m)
                 
                 else:
                     

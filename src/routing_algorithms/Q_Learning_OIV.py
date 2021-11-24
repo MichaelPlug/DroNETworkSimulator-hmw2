@@ -377,24 +377,32 @@ class AIRouting(BASE_routing):
                              
                              
                                 return_m = q[(drone_istance.identifier, i)]
-                        
+                   
+                               
                         
                         except Exception as e:
                             
                             
-                            q[(drone_istance.identifier, i)] = 10
+                            q[(drone_istance.identifier, i)] = 0
                         
                         
                             if (q[(drone_istance.identifier, i)] > return_m):
                              
+                            
+                             
                                 return_m = q[(drone_istance.identifier, i)]
                    
+                                
+                            
+                         
+                        
+                        
                         
                 #save everything for the capturing of the reward in 
                 #successive phase of feedback
                 if (max_action == None):
                     
-                    s[(self.drone.identifier, pkd.event_ref.identifier)] = (1, return_m)
+                    s[(self.drone.identifier, pkd.event_ref.identifier)] = (0, return_m)
                 
                 else:
                     
@@ -402,7 +410,6 @@ class AIRouting(BASE_routing):
                 
                 
                 return max_action
-                
                 
                 
                 
@@ -414,11 +421,34 @@ class AIRouting(BASE_routing):
             
             
             
-            """ arg min score  -> geographical approach, take the drone closest to the depot """
-            best_drone_distance_from_depot = util.euclidean_distance(self.simulator.depot.coords, self.drone.coords)
-            max_action = None
-
             
+            
+            
+            
+            
+            
+            #create the list of neighbors
+            list_neighbors = []
+            
+            #loop for every drones
+            for hello_packet, drone_istance in opt_neighbors:
+                
+                #append istances of the drones
+                list_neighbors.append(drone_istance)
+            
+            #append also the same node to select
+            list_neighbors.append(None)
+            
+            
+            #append also the same node to select
+            list_neighbors.append(-1)
+            
+            
+            
+            #select one drone randomly
+            max_action = random.choice(list_neighbors)
+
+
             l = []
             
             
@@ -456,12 +486,10 @@ class AIRouting(BASE_routing):
                 l.append(q[(self.drone.identifier, 2)])
                 
             
-    
+        
 
-            # Action MOVE is identified by -1
-            if len(opt_neighbors) == 0:
-                
-                
+            if (max_action == -1):
+            
                 m = max(l)
                 
                 #we save this result, in practise
@@ -479,86 +507,9 @@ class AIRouting(BASE_routing):
                 #at the end we perform the action to go to the depot, so
                 #we left the mission for this purpose
                 return -1
-
+           
             
-            "FIRST PHASE -- TAKE MAX Rs FOR a -- SLIDE 32"
-            #we take the maximum value, for the reward calculation
-            #this is the ELSE part
-            
-            m = max(l)
-            
-            #we initialize two differente variables to do some things
-            sum_v_star = 0
-            max_v_star = 0
-            
-            
-            "SECOND PHASE PHASE -- SUM OF PROBABILITIES AND V* -- SLIDE 32"
-            #we meed to know sum of v* of all neighbors
-            for hello_packet, drone_istance in opt_neighbors:
-                
-                
-                try:
-                    
-                
-                    sum_v_star = sum_v_star + v_star[drone_istance.identifier]
-            
-                except Exception as e:
-                    
-                    v_star[drone_istance.identifier] = 0
-                    
-                    sum_v_star = sum_v_star + v_star[drone_istance.identifier]
-            
-            
-            
-            try:
-                
-                #set the v_star attribute
-                v_star[self.drone.identifier] = v_star[self.drone.identifier] + m + gamma*sum_v_star
-            
-            except Exception as e:
-                
-                v_star[self.drone.identifier] = 0
-                
-                v_star[self.drone.identifier] = v_star[self.drone.identifier] + m + gamma*sum_v_star
-            
-            
-            max_v_star = v_star[self.drone.identifier]
-            
-            max_action = None
-
-            #max of possible actions
-            return_m = m
-            
-            
-            
-            
-
-
-            for hpk, drone_istance in opt_neighbors:
-                
-                exp_position = hpk.cur_pos  # without estimation, a simple geographic approach
-                exp_distance = util.euclidean_distance(exp_position, self.simulator.depot.coords)
-                if exp_distance < best_drone_distance_from_depot:
-                    best_drone_distance_from_depot = exp_distance
-                    max_action = drone_istance
-                    
-                    try:
-                    
-                        return_m = q[(drone_istance.identifier, 2)]
-                    
-                    except Exception as e:
-                        
-                        q[(drone_istance.identifier, 2)] = 10
-                        
-                        return_m = q[(drone_istance.identifier, 2)]
-                    
-                    
-
-
-            #save everything for the capturing of the reward in 
-            #successive phase of feedback
-            if (max_action == None):
-                
+            elif (max_action == None):
                 
                 m = max(l)
                 
@@ -566,7 +517,7 @@ class AIRouting(BASE_routing):
                 #for this packet has perform the action to maintain
                 #the packet and to remain to its trajectory and it is
                 #saved also the maximum possible value
-                s[(self.drone.identifier, pkd.event_ref.identifier)] = (0, return_m)
+                s[(self.drone.identifier, pkd.event_ref.identifier)] = (0, m)
                 
                 
                 
@@ -580,14 +531,74 @@ class AIRouting(BASE_routing):
                 
                 
                 
-                
+                #do anything
+                return None
+            
             
             else:
                 
-                s[(max_action.identifier, pkd.event_ref.identifier)] = (1, return_m)
-            
-            
+                "FIRST PHASE -- TAKE MAX Rs FOR a -- SLIDE 32"
+                #we take the maximum value, for the reward calculation
+                #this is the ELSE part
+                
+                m = max(l)
+                
+                #we initialize two differente variables to do some things
+                sum_v_star = 0
+                max_v_star = 0
+                
+                
+                "SECOND PHASE PHASE -- SUM OF PROBABILITIES AND V* -- SLIDE 32"
+                #we meed to know sum of v* of all neighbors
+                for hello_packet, drone_istance in opt_neighbors:
+                    
+                    
+                    try:
+                        
+                    
+                        sum_v_star = sum_v_star + v_star[drone_istance.identifier]
+                
+                    except Exception as e:
+                        
+                        v_star[drone_istance.identifier] = 0
+                        
+                        sum_v_star = sum_v_star + v_star[drone_istance.identifier]
+                
+                
+                
+                try:
+                    
+                    #set the v_star attribute
+                    v_star[self.drone.identifier] = v_star[self.drone.identifier] + m + gamma*sum_v_star
+                
+                except Exception as e:
+                    
+                    v_star[self.drone.identifier] = 0
+                    
+                    v_star[self.drone.identifier] = v_star[self.drone.identifier] + m + gamma*sum_v_star
+                
+                
+                max_v_star = v_star[self.drone.identifier]
+                
 
+                #max of possible actions
+                return_m = m
+                
+                
+                try:
+                
+                    return_m = q[(max_action.identifier, 2)]
+                
+                except Exception as e:
+                    
+                    q[(max_action.identifier, 2)] = 10
+                    
+                    
+                    return_m = q[(max_action.identifier, 2)]
+                
+                
+                
+            
             return max_action
     
     
