@@ -3,7 +3,10 @@ from src.routing_algorithms.georouting import GeoRouting
 from src.routing_algorithms.georouting_w_move import GeoMoveRouting
 from src.routing_algorithms.random_routing import RandomRouting
 from src.routing_algorithms.closeset_to_me_routing import CloRouting
-from src.routing_algorithms.Q_Learning_3_actions_EGN import AIRouting
+#from src.routing_algorithms.ai_routing import AIRouting
+#from src.routing_algorithms.Q_Learning_3_actions_EGN import AIRouting
+from src.routing_algorithms.Q_Learning_3_actions_EG_WGEO import AIRouting
+
 
 from enum import Enum
 
@@ -27,6 +30,9 @@ Attributes that one needs tweak often are tagged with # ***
 # ----------------------------------------------------------------------------------
 
 # ----------------------- PATH DRONES -----------------------------------------#
+SWEEP_PATH = True
+LENGHT_METERS_TOUR = 30000 # (DO NOT CHANGE)
+HOVERING = 600  # int : steps of hovering
 CIRCLE_PATH = False # bool: whether to use cirlce paths around the depot
 DEMO_PATH = False   # bool: whether to use handcrafted tours or not
 # to set up handcrafted torus see utilities.utilities
@@ -35,7 +41,7 @@ PATH_FROM_JSON = False                   # bool: whether to use the path (for dr
 JSONS_PATH_PREFIX = "data/tours/RANDOM_mission_d30_s{}.json"     # str: the path to the drones tours,
                                             # the {} should be used to specify the seed -> es. data/tours/RANDOM_missions1.json for seed 1.
 RANDOM_STEPS = [250, 500, 700, 900, 1100, 1400]  # the step after each new random directions is taken, in case of dynamic generation
-RANDOM_START_POINT = False  # bool whether the drones start the mission at random positions
+RANDOM_START_POINT = True  # bool whether the drones start the mission at random positions
 
 # ------------------------------- CONSTANTS ------------------------------- #
 
@@ -45,7 +51,7 @@ EXPERIMENTS_DIR = "data/experiments/"  # output data : the results of the simula
 # drawaing
 PLOT_SIM = True      # bool: whether to plot or not the simulation.
 WAIT_SIM_STEP = 0     # float: seconds, pauses the rendering for 'DELAY_PLOT' seconds.
-SKIP_SIM_STEP = 3000   # int: steps, plot the simulation every 'RENDERING_STEP' steps. At least 1.
+SKIP_SIM_STEP = 3000     # int: steps, plot the simulation every 'RENDERING_STEP' steps. At least 1.
 DRAW_SIZE = 700       # int: size of the drawing window.
 IS_SHOW_NEXT_TARGET_VEC = True  # bool : whether show the direction and next target of the drone
 
@@ -57,7 +63,7 @@ SAVE_PLOT_DIR = "data/plots/"
 # ----------------------------- SIMULATION PARAMS. ---------------------------- #
 SIM_DURATION = 30000 # int: steps of simulation. # ***
 TS_DURATION = 0.150   # float: seconds duration of a step in seconds.
-SEED = 5          # int: seed of this simulation.
+SEED = 2            # int: seed of this simulation.
 
 N_DRONES = 5  # int: number of drones. # ***
 ENV_WIDTH = 1500      # float: meters, width of environment.

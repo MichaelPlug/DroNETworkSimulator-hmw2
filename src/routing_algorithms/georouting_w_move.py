@@ -27,9 +27,9 @@ class GeoMoveRouting(BASE_routing):
 
         return best_drone
 
-"""
+
     def __estimated_neighbor_drone_position(self, hello_message):
-        # estimate the current position of the drone 
+        """ estimate the current position of the drone """
 
         # get known info about the neighbor drone
         hello_message_time = hello_message.time_step_creation
@@ -51,4 +51,4 @@ class GeoMoveRouting(BASE_routing):
         # compute the expect position
         c = a + (distance_traveled * v_)
 
-        return tuple(c)"""
+        return tuple(c)
