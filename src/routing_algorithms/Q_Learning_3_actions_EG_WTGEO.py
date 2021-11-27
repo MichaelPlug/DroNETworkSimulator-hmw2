@@ -47,8 +47,7 @@ max_epsilon = 0.25
 georouting_on_next_step = True
 
 #take a random value between 0,1
-#epsilon = random.random()
-epsilon = 0
+epsilon = random.random()
 
 #normalize the random value from min_epsilon to max_epsilon
 epsilon = min_epsilon + (epsilon * (max_epsilon - min_epsilon))
@@ -676,6 +675,13 @@ class AIRouting(BASE_routing):
     	a = util.euclidean_distance(self.simulator.depot.coords, self.drone.next_target())
     	b = util.euclidean_distance(self.drone.coords, self.drone.next_target())
     	c = util.euclidean_distance(self.simulator.depot.coords, self.drone.coords)
+    	if b == 0:
+    		return False
+    	if a == 0:
+    		return False
+    	if c == 0:
+    		return False
+    	
     	import math
     	arg = (b**2 + c**2 - a**2) / (2.0*b*c)
     	if arg > 1.0:
@@ -684,7 +690,7 @@ class AIRouting(BASE_routing):
     		arg = -1
     	alpha = math.acos(arg)
     	return alpha >= math.pi/2
-    	#return self.compute_distance_to_trajectory_s() >= util.euclidean_distance(self.simulator.depot.coords, self.drone.coords)
+
 
     def compute_distance_to_trajectory_s(self):
         p1 = np.array([self.drone.coords[0], self.drone.coords[1]])
