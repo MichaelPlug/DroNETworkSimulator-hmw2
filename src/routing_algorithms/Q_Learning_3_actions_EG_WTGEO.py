@@ -228,7 +228,6 @@ class AIRouting(BASE_routing):
         	setattr(self.drone, 'mustGoBack', mustGoBack)	
         if mustGoBack:
         	if self.isGoingAway():
-        		self.k = self.k + 1
         		print("I'm going back")
         		self.drone.mustGoBack = False
         		return -1
@@ -614,7 +613,7 @@ class AIRouting(BASE_routing):
                 
             
             else:
-                
+                self.drone.mustGoBack = False
                 s[(max_action.identifier, pkd.event_ref.identifier)] = (1, return_m)
             
             
@@ -642,35 +641,6 @@ class AIRouting(BASE_routing):
         pass
 
     
-    
-    def compute_extimed_position(self, hello_packet):
-        """ estimate the current position of the drone """
-
-        # get known info about the neighbor drone
-        hello_message_time = hello_packet.time_step_creation
-        known_position = hello_packet.cur_pos
-        known_speed = hello_packet.speed
-        known_next_target = hello_packet.next_target
-
-        # compute the time elapsed since the message sent and now
-        # elapsed_time in seconds = elapsed_time in steps * step_duration_in_seconds
-        elapsed_time = (self.simulator.cur_step - hello_message_time) * self.simulator.time_step_duration  # seconds
-
-        # distance traveled by drone
-        distance_traveled = elapsed_time * known_speed
-
-        # direction vector
-        a, b = np.asarray(known_position), np.asarray(known_next_target)
-        if np.linalg.norm(b - a) != 0:
-        	v_ = (b - a) / np.linalg.norm(b - a)
-        else:
-        	v_ = 0
-
-        # compute the expect position
-        c = a + (distance_traveled * v_)
-
-        return tuple(c)
-
     def isGoingAway(self):
     	a = util.euclidean_distance(self.simulator.depot.coords, self.drone.next_target())
     	b = util.euclidean_distance(self.drone.coords, self.drone.next_target())
@@ -684,40 +654,9 @@ class AIRouting(BASE_routing):
     	
     	import math
     	arg = (b**2 + c**2 - a**2) / (2.0*b*c)
-    	if arg > 1.0:
+    	if arg > 1.0: 		
     		arg = 1
     	if arg < -1.0:
-    		arg = -1
+    	    	arg = -1
     	alpha = math.acos(arg)
     	return alpha >= math.pi/2
-
-
-    def compute_distance_to_trajectory_s(self):
-        p1 = np.array([self.drone.coords[0], self.drone.coords[1]])
-        p2 = np.array([self.drone.next_target()[0], self.drone.next_target()[1]])
-        p3 = np.array([self.drone.depot.coords[0],self.drone.depot.coords[1]])
-
-        
-        if np.linalg.norm(p2-p1) != 0:
-        	distance = np.linalg.norm(np.cross(p2-p1, p1-p3))/np.linalg.norm(p2-p1)
-        	if distance > 0:
-        		return distance
-        	else:
-        		return -distance
-        else: 
-        	return 0
-
-    def compute_distance_to_trajectory(self, hello_packet):
-
-        exp_position = self.compute_extimed_position(hello_packet)
-       # exp_position = hello_packet.cur_pos
-
-        #MAYBE IT SHOULD BE p1 = np.array([exp_position[0][0], exp_position[0][1]])
-        p1 = np.array([exp_position[0], exp_position[1]])
-        p2 = np.array([hello_packet.next_target[0], hello_packet.next_target[1]])
-        p3 = np.array([self.drone.depot.coords[0],self.drone.depot.coords[1]])
-        
-        if np.linalg.norm(p2-p1) != 0:
-        	return np.linalg.norm(np.cross(p2-p1, p1-p3))/np.linalg.norm(p2-p1)
-        else: 
-        	return 0
