@@ -1,7 +1,9 @@
-data/plots/*
-data/plots/evaluation_tests/*
-*/__pycache__
-*/*/__pycache__
-.idea
-.DS_Store
-
+data/
+src/routing_algorithms/__pycache__
+src/utilites
+src/__pycache__
+src/drawing/
+src/experiments
+src/entities
+src/simulation/
+src/utilities/__pycache__
