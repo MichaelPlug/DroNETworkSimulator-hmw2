@@ -47,10 +47,10 @@ max_epsilon = 0.25
 georouting_on_next_step = True
 
 #take a random value between 0,1
-epsilon = random.random()
+#epsilon = 1.0
 
 #normalize the random value from min_epsilon to max_epsilon
-epsilon = min_epsilon + (epsilon * (max_epsilon - min_epsilon))
+#epsilon = min_epsilon + (epsilon * (max_epsilon - min_epsilon))
 
 s = {}
 
@@ -70,6 +70,9 @@ class AIRouting(BASE_routing):
         # random generator
         self.rnd_for_routing_ai = np.random.RandomState(self.simulator.seed)
         self.taken_actions = {}  #id event : (old_action)
+        setattr(self, 'epsilon', 1)
+        self.epsilon = min_epsilon + (random.random()* (max_epsilon - min_epsilon))
+        
         setattr(self, 'k', 0)
         
 
@@ -220,22 +223,39 @@ class AIRouting(BASE_routing):
         
         #Check the state of the drone, if it should be go back to depet 
         #when the distance from it and its trajectory is minimized
+        
 		
         try: 
         	mustGoBack = self.drone.mustGoBack
         except:
         	mustGoBack = False
-        	setattr(self.drone, 'mustGoBack', mustGoBack)	
+        	setattr(self.drone, 'mustGoBack', mustGoBack)
+        for pkt, d in opt_neighbors:
+        	if d.move_routing:
+        		self.drone.mustGoBack = False
+        		return d        	
+       	for pkd, d in opt_opt_neighbors:
+       		try:
+       			if d.mustGoBack:
+       				return d
+       		except:
+       			continue
+       			
         if mustGoBack:
         	if self.isGoingAway():
         		print("I'm going back")
+        		self.k = self.k + 1
         		self.drone.mustGoBack = False
         		return -1
+        	else:
+        		return None
+        		
 	
-        
         #if we are in greedy case
-        if (rand < 1 - epsilon):
-        
+        if (rand < 1 - self.epsilon):
+            #self.epsilon = self.epsilon - 0.10
+            #self.epsilon = self.epsilon**2
+            #self.epsilon = self.epsilon + 0.10
             #we calculate what is the best action to perform, if it is 
             #the action of None, -1 or pass to any neighbour
             
@@ -334,6 +354,7 @@ class AIRouting(BASE_routing):
                 return None
             
             #if the best choice to do is to pass the packet to the neighbors
+
             if (b >= a and b >= c):
                 
                 "FIRST PHASE -- TAKE MAX Rs FOR a -- SLIDE 32"
@@ -432,8 +453,9 @@ class AIRouting(BASE_routing):
         #in the random case (epsilon case)    
         else:
             
-            
-            
+            #self.epsilon = self.epsilon - 0.10
+            #self.epsilon = self.epsilon**2
+            #self.epsilon = self.epsilon + 0.10
             
             """ arg min score  -> geographical approach, take the drone closest to the depot """
             best_drone_distance_from_depot = util.euclidean_distance(self.simulator.depot.coords, self.drone.coords)
