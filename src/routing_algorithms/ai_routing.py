@@ -28,6 +28,7 @@ import src.utilities.config as config #try self.simulator.n_drones
 #import the library for random values
 import random
 
+
     
 #seed for random values, just to have consistence on values 
 #TODO
@@ -47,6 +48,11 @@ georouting_on_next_step = True
 #normalize the random value from min_epsilon to max_epsilon
 #epsilon = min_epsilon + (epsilon * (max_epsilon - min_epsilon))
 
+s = {}
+
+v_star = {}
+
+
 alpha = 0.5
 
 gamma = 0.9
@@ -60,10 +66,8 @@ class AIRouting(BASE_routing):
         # random generator
         self.rnd_for_routing_ai = np.random.RandomState(self.simulator.seed)
         self.taken_actions = {}  #id event : (old_action)
-        setattr(self, 'epsilon', 1)
-        self.epsilon = min_epsilon + (random.random()* (max_epsilon - min_epsilon))
+        self.epsilon = min_epsilon + (random.random() * (max_epsilon - min_epsilon))
         
-        setattr(self, 'k', 0)
         
 
     def feedback(self, drone, id_event, delay, outcome):
@@ -80,8 +84,8 @@ class AIRouting(BASE_routing):
         # STORE WHICH ACTION DID YOU TAKE IN THE PAST.
         # do something or train the model (?)
         
-        print(self, drone, id_event, delay, outcome)
-        
+            
+            
         try:
         	appo = self.drone.q
         except:
@@ -95,16 +99,18 @@ class AIRouting(BASE_routing):
         try:
          	appo = self.drone.v_star
         except: 
-        	setattr(self.drone, 'v_star', {})        
+        	setattr(self.drone, 'v_star', {})
+	            
             
             
+        
         #if the packet isn't still treated, then we train system for it
         if True:
    
             "Doubt: i don't know the utility of this"        
             if id_event in self.taken_actions:
-                action = self.taken_actionself.drone.s[id_event]
-                del self.taken_actionself.drone.s[id_event]
+                action = self.taken_actions[id_event]
+                del self.taken_actions[id_event]
             "End of doubt"
                 
             #if the packet is arrived isn't more valid
@@ -195,7 +201,7 @@ class AIRouting(BASE_routing):
 
                 
             
-            #self.drone.q[drone.identifier][self.drone.identifier] = self.drone.q[drone.identifier][self.drone.identifier] + R
+            #q[drone.identifier][self.drone.identifier] = q[drone.identifier][self.drone.identifier] + R
         
             
             
@@ -222,7 +228,26 @@ class AIRouting(BASE_routing):
         
         #Check the state of the drone, if it should be go back to depet 
         #when the distance from it and its trajectory is minimized
-        
+        if self.drone.packet_is_expiring(self.simulator.cur_step):
+        	self.k  = self.k + 1
+        	return -1
+        try: 
+        	mustGoBack = self.drone.mustGoBack
+        except:
+        	mustGoBack = False
+        	setattr(self.drone, 'mustGoBack', mustGoBack)
+
+        for pkt, d in opt_neighbors:
+        	if d.move_routing:
+        		self.drone.mustGoBack = False
+        		return d        	
+       			
+        if mustGoBack:
+        	if self.isGoingAway():
+        		print("I'm going back")
+        		self.drone.mustGoBack = False
+        		return -1
+
         try:
         	appo = self.drone.q
         except:
@@ -237,52 +262,12 @@ class AIRouting(BASE_routing):
          	appo = self.drone.v_star
         except: 
         	setattr(self.drone, 'v_star', {})
-        			
-        try: 
-        	mustGoBack = self.drone.mustGoBack
-        except:
-        	mustGoBack = False
-        	setattr(self.drone, 'mustGoBack', mustGoBack)
-        for pkt, d in opt_neighbors:
-        	if d.move_routing:
-        		self.drone.mustGoBack = False
-        		return d        	
-       	       	
-       	
-       	for pkd, d in opt_neighbors:
-       		if d.buffer_length() > 0:
-       			if  util.euclidean_distance(self.simulator.depot.coords, self.drone.coords) > util.euclidean_distance(self.simulator.depot.coords, pkd.cur_pos):
-       				self.mustGoBack = False
-       				return d
-       				
-       	
-       	for pkd, d in opt_neighbors:
-       		try:
-       			if d.mustGoBack:
-       				return d
-       		except:
-       			continue
-
-       	#if one of the packets is to expiring go back to the depot before it happen
-       	if self.imlating(self.simulator.cur_step):
-       		self.k = self.k + 1
-       		self.drone.mustGoBack = False
-       		return -1
-       		
-     		  	
-       			
-        if mustGoBack:
-        	if self.isGoingAway():
-        		print("I'm going back")
-        		self.drone.mustGoBack = False
-        		return -1
-        	else:
-        		return None
-        		
 	
         #if we are in greedy case
         if (rand < 1 - self.epsilon):
-
+            #self.epsilon = self.epsilon - 0.10
+            #self.epsilon = self.epsilon**2
+            #self.epsilon = self.epsilon + 0.10
             #we calculate what is the best action to perform, if it is 
             #the action of None, -1 or pass to any neighbour
             
@@ -332,12 +317,12 @@ class AIRouting(BASE_routing):
                 #for this packet has perform the action to maintain
                 #the packet and to remain to its trajectory and it is
                 #saved also the maximum possible value
-                self.drone.s[(self.drone.identifier, pkd.event_ref.identifier)] = (0, m)
+                s[(self.drone.identifier, pkd.event_ref.identifier)] = (0, m)
                 
                 
                 
                 try:
-                    self.drone.v_star[self.drone.identifier] = self.drone.v_star[self.drone.identifier] + m
+                    self.dorne.v_star[self.drone.identifier] = self.drone.v_star[self.drone.identifier] + m
                 
                 except Exception as e:
                     
@@ -350,8 +335,11 @@ class AIRouting(BASE_routing):
             
             #if the better action is to go to the depot, then this means
             #that we want do the same of the previous if, in practise
-            if (c >= a and c >= b):
+            if (c > a and c > b):
                 
+                if self.drone.mustGoBack:
+                	return None
+                #self.k = self.k + 1
                 #we take the maximum value, for the reward calculation
                 #NOT NECESSARY TRY-EXCEPT, EXECUTED JUST BEFORE
                 l = [self.drone.q[(self.drone.identifier, 0)], self.drone.q[(self.drone.identifier, 1)], self.drone.q[(self.drone.identifier, 2)]]
@@ -371,7 +359,6 @@ class AIRouting(BASE_routing):
                 
                 #at the end we perform the action to go to the depot, so
                 #we left the mission for this purpose
-                
                 if self.isGoingAway():
                      return -1
                 try: 
@@ -398,8 +385,10 @@ class AIRouting(BASE_routing):
                 "SECOND PHASE PHASE -- SUM OF PROBABILITIES AND V* -- SLIDE 32"
                 #we meed to know sum of v* of all neighbors
                 for hello_packet, drone_istance in opt_neighbors:
-                    
-                    sum_v_star = sum_v_star + self.drone.v_star[drone_istance.identifier]
+                    try:
+                    	sum_v_star = sum_v_star + self.drone.v_star[drone_istance.identifier]
+                    except:
+                    	sum_v_star = sum_v_star                 
                 
                 
                 try:
@@ -425,10 +414,13 @@ class AIRouting(BASE_routing):
                     
 
                     #because we must identify max_a Q(S' , a)
-                    if (self.drone.v_star[drone_istance.identifier] > max_v_star):
+                    try:
+                    	if (self.drone.v_star[drone_istance.identifier] > max_v_star):
                         
-                        max_v_star = self.drone.v_star[drone_istance.identifier]     
-                        max_action = drone_istance
+                        	max_v_star = self.drone.v_star[drone_istance.identifier]     
+                        	max_action = drone_istance
+                    except:
+                    	appo = 'cance'
                         
                 #max of possible actions
                 return_m = m
@@ -531,6 +523,8 @@ class AIRouting(BASE_routing):
             # Action MOVE is identified by -1
             if len(opt_neighbors) == 0:
                 
+                if self.drone.mustGoBack:
+                	return None
                 
                 m = max(l)
                 
@@ -685,8 +679,6 @@ class AIRouting(BASE_routing):
             This method is called at the end of the simulation, can be usefull to print some
                 metrics about the learning process
         """
-        print(self.k)
-        print("sono k")
         pass
 
     
@@ -709,13 +701,5 @@ class AIRouting(BASE_routing):
     	    	arg = -1
     	alpha = math.acos(arg)
     	return alpha >= math.pi/2
-    	
-    def imlating(self, cur_step):
-        """ return true if exist a packet that is expiring and must be returned to the depot as soon as possible
-            -> start to move manually to the depot.
+ 
 
-            This method is optional, there is flag src.utilities.config.ROUTING_IF_EXPIRING
-        """
-        time_to_depot = util.euclidean_distance(self.drone.depot.coords, self.drone.coords) / self.drone.speed
-        event_time_to_dead = (self.drone.tightest_event_deadline - cur_step) * self.drone.simulator.time_step_duration
-        return event_time_to_dead - 5 < time_to_depot <= event_time_to_dead  # 2000 seconds of tolerance
