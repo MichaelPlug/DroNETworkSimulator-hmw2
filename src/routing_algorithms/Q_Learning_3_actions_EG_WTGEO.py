@@ -98,7 +98,6 @@ class AIRouting(BASE_routing):
         	setattr(self.drone, 'v_star', {})        
             
             
-        
         #if the packet isn't still treated, then we train system for it
         if True:
    
@@ -248,17 +247,33 @@ class AIRouting(BASE_routing):
         	if d.move_routing:
         		self.drone.mustGoBack = False
         		return d        	
-       	for pkd, d in opt_opt_neighbors:
+       	       	
+       	'''
+       	for pkd, d in opt_neighbors:
+       		if d.buffer_length() > 0:
+       			if  util.euclidean_distance(self.simulator.depot.coords, self.drone.coords) > util.euclidean_distance(self.simulator.depot.coords, pkd.cur_pos):
+       				self.mustGoBack = False
+       				return d
+       	'''			
+       	
+       	for pkd, d in opt_neighbors:
        		try:
        			if d.mustGoBack:
        				return d
        		except:
        			continue
+	'''
+       	#if one of the packets is to expiring go back to the depot before it happen
+       	if self.imlating(self.simulator.cur_step):
+       		self.k = self.k + 1
+       		self.drone.mustGoBack = False
+       		return -1
+       	'''	
+     		  	
        			
         if mustGoBack:
         	if self.isGoingAway():
         		print("I'm going back")
-        		self.k = self.k + 1
         		self.drone.mustGoBack = False
         		return -1
         	else:
@@ -267,9 +282,7 @@ class AIRouting(BASE_routing):
 	
         #if we are in greedy case
         if (rand < 1 - self.epsilon):
-            #self.epsilon = self.epsilon - 0.10
-            #self.epsilon = self.epsilon**2
-            #self.epsilon = self.epsilon + 0.10
+
             #we calculate what is the best action to perform, if it is 
             #the action of None, -1 or pass to any neighbour
             
@@ -696,3 +709,13 @@ class AIRouting(BASE_routing):
     	    	arg = -1
     	alpha = math.acos(arg)
     	return alpha >= math.pi/2
+    	
+    def imlating(self, cur_step):
+        """ return true if exist a packet that is expiring and must be returned to the depot as soon as possible
+            -> start to move manually to the depot.
+
+            This method is optional, there is flag src.utilities.config.ROUTING_IF_EXPIRING
+        """
+        time_to_depot = util.euclidean_distance(self.drone.depot.coords, self.drone.coords) / self.drone.speed
+        event_time_to_dead = (self.drone.tightest_event_deadline - cur_step) * self.drone.simulator.time_step_duration
+        return event_time_to_dead - 5 < time_to_depot <= event_time_to_dead  # 2000 seconds of tolerance
