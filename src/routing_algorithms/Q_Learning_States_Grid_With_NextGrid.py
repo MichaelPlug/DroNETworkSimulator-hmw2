@@ -147,8 +147,9 @@ class AIRouting(BASE_routing):
                                                             width_area=self.simulator.env_width,
                                                             x_pos=drone.coords[0],  # e.g. 1500
                                                             y_pos=drone.coords[1])[0]  # e.g. 500
-            #print("drone_neighbor: ", drone.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
-
+            print("drone_neighbor: ", drone.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
+            
+            
             
             
             #in this way we also consider the action of return -1 
@@ -229,7 +230,7 @@ class AIRouting(BASE_routing):
                                                         width_area=self.simulator.env_width,
                                                         x_pos=self.drone.coords[0],  # e.g. 1500
                                                         y_pos=self.drone.coords[1])[0]  # e.g. 500
-        #print("Drone: ", self.drone.identifier, " - i-th cell:",  self_cell_index, " - center:", self.simulator.cell_to_center_coords[self_cell_index])
+        print("Drone: ", self.drone.identifier, " - i-th cell:",  self_cell_index, " - center:", self.simulator.cell_to_center_coords[self_cell_index])
         
         
             
@@ -415,8 +416,7 @@ class AIRouting(BASE_routing):
                                                                         width_area=self.simulator.env_width,
                                                                         x_pos=drone_istance.coords[0],  # e.g. 1500
                                                                         y_pos=drone_istance.coords[1])[0]  # e.g. 500
-                        
-                        #print("drone_neighbor: ", drone_istance.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
+                        print("drone_neighbor: ", drone_istance.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
                         
                         
                         try:
@@ -596,7 +596,7 @@ class AIRouting(BASE_routing):
                                                                     width_area=self.simulator.env_width,
                                                                     x_pos=drone_istance.coords[0],  # e.g. 1500
                                                                     y_pos=drone_istance.coords[1])[0]  # e.g. 500
-                    #print("drone_neighbor: ", drone_istance.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
+                    print("drone_neighbor: ", drone_istance.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
                     
                     
                     try:
@@ -688,3 +688,21 @@ class AIRouting(BASE_routing):
                 metrics about the learning process
         """
         pass
+    
+    def self.compute_next_grid():
+        drone_cell_index = util.TraversedCells.coord_to_cell(size_cell=self.simulator.prob_size_cell, width_area=self.simulator.env_width, x_pos=drone.coords[0],  y_pos=drone.coords[1])[0]
+        drone_position = self.drone.coords
+        drone_next_target = self.drone.next_target()
+ 	drone_distance_next_target = drone_next_target - drone_position
+ 	if util.TraversedCells.coord_to_cell(size_cell=self.simulator.prob_size_cell, width_area=self.simulator.env_width, x_pos=drone.next_target()[0],  y_pos=drone.next_target()[1])[0] == drone_cell_index:
+ 		return drone_cell_index
+ 	if drone_distance_next_target[0] > 0:
+ 		if drone_distance_next_target[1] > 0:
+ 			cross_point = 
+ 		else:
+ 	else:
+ 		if drone_distance_next_target[1] > 0:
+ 			
+ 		else:			
+ 			angle_target
+ 		
