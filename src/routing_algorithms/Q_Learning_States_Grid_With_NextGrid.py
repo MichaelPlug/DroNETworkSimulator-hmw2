@@ -688,21 +688,42 @@ class AIRouting(BASE_routing):
                 metrics about the learning process
         """
         pass
-    
-    def self.compute_next_grid():
-        drone_cell_index = util.TraversedCells.coord_to_cell(size_cell=self.simulator.prob_size_cell, width_area=self.simulator.env_width, x_pos=drone.coords[0],  y_pos=drone.coords[1])[0]
-        drone_position = self.drone.coords
-        drone_next_target = self.drone.next_target()
- 	drone_distance_next_target = drone_next_target - drone_position
- 	if util.TraversedCells.coord_to_cell(size_cell=self.simulator.prob_size_cell, width_area=self.simulator.env_width, x_pos=drone.next_target()[0],  y_pos=drone.next_target()[1])[0] == drone_cell_index:
- 		return drone_cell_index
- 	if drone_distance_next_target[0] > 0:
+
+    def get_grid_and_next_grid(self):
+    	actural_grid = self.drone.coords % self.simulator.prob_size_cell
+    	if self.drone.next_target() % self.simulator.prob_size_cell == actual_grid:
+    		return (actual_grid, actual_grid)
+    	drone_distance_next_target = self.drone.next_target() - self.drone.coords
+   	if drone_distance_next_target[0] > 0:
  		if drone_distance_next_target[1] > 0:
- 			cross_point = 
+ 			cross_point = (actual_grid + 1)*self.prob_size_cell
  		else:
+ 			cross_point = (actual_grid)*self.prob_size_cell
+ 			cross_poiin[0] = cross_point[0]*self.prob_size_cell
  	else:
  		if drone_distance_next_target[1] > 0:
+ 			cross_point = (actual_grid)*self.prob_size_cell
+ 			cross_poiin[1] = cross_point[1]*self.prob_size_cell
  			
  		else:			
- 			angle_target
- 		
+ 			cross_point = (actual_grid)*self.prob_size_cell
+ 
+def get_grid_and_next_grid(self, drone):
+    	actural_grid = self.drone.cur_pos % self.simulator.prob_size_cell
+    	if next_target % self.simulator.prob_size_cell == actual_grid:
+    		return (actual_grid, actual_grid)
+    	drone_distance_next_target = drone.next_target - drone.cur_pos
+   	if drone_distance_next_target[0] > 0:
+ 		if drone_distance_next_target[1] > 0:
+ 			cross_point = (actual_grid + 1)*self.prob_size_cell
+ 		else:
+ 			cross_point = (actual_grid)*self.prob_size_cell
+ 			cross_poiin[0] = cross_point[0]*self.prob_size_cell
+ 	else:
+ 		if drone_distance_next_target[1] > 0:
+ 			cross_point = (actual_grid)*self.prob_size_cell
+ 			cross_poiin[1] = cross_point[1]*self.prob_size_cell
+ 			
+ 		else:			
+ 			cross_point = (actual_grid)*self.prob_size_cell
+ 	
