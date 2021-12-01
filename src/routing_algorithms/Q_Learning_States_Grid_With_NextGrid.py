@@ -715,31 +715,18 @@ class AIRouting(BASE_routing):
  			cross_point = (actual_grid)*self.prob_size_cell
  			right = False
  	drone_distance_cross_point = cross_point - self.drone.coords
- 	grad = drone_distance_next_target[0]/drone_distance_next_target[1] - drone_distance_cross_point[0]/drone_distance_cross_point[1]
+ 	grad = math.abs(drone_distance_next_target[0]/drone_distance_next_target[1]) - math.abs(drone_distance_cross_point[0]/drone_distance_cross_point[1])
  	
- 	###Questa parte non è corretta
  	if grad > 0:
- 		if up:
- 			if right:
- 				return (actural_grid, [actual_grid[0]+1, actual_grid[1]])
- 			else:
- 				return (actural_grid, [actual_grid[0], actual_grid[1] +1])
+ 		if right:
+ 			return (actural_grid, [actual_grid[0]+1, actual_grid[1]])
  		else:
- 			 if right:
- 				return (actural_grid, [actual_grid[0]+1, actual_grid[1]])
- 			else:
- 				return (actural_grid, [actual_grid[0], actual_grid[1] +1])
+ 			return (actural_grid, [actual_grid[0] -1, actual_grid[1]])
  	else:
- 	 	if up:
- 			if right:
- 				return (actural_grid, [actual_grid[0]+1, actual_grid[1]])
- 			else:
- 				return (actural_grid, [actual_grid[0], actual_grid[1] +1])
+		if up:
+ 			return (actural_grid, [actual_grid[0], actual_grid[1] +1])
  		else:
- 			 if right:
- 				return (actural_grid, [actual_grid[0]+1, actual_grid[1]])
- 			else:
- 				return (actural_grid, [actual_grid[0], actual_grid[1] +1])
+ 			return (actural_grid, [actual_grid[0], actual_grid[1] -1])
  	
  	
  		
@@ -749,22 +736,41 @@ class AIRouting(BASE_routing):
  	
 
  
-def get_grid_and_next_grid(self, drone):
+   def get_grid_and_next_grid(self, drone):
     	actural_grid = self.drone.cur_pos % self.simulator.prob_size_cell
     	if next_target % self.simulator.prob_size_cell == actual_grid:
     		return (actual_grid, actual_grid)
     	drone_distance_next_target = drone.next_target - drone.cur_pos
    	if drone_distance_next_target[0] > 0:
+   		up = True
  		if drone_distance_next_target[1] > 0:
  			cross_point = (actual_grid + 1)*self.prob_size_cell
+ 			right = True
  		else:
  			cross_point = (actual_grid)*self.prob_size_cell
  			cross_poiin[0] = cross_point[0]*self.prob_size_cell
+ 			right = False
+ 			
  	else:
+		up = False
  		if drone_distance_next_target[1] > 0:
  			cross_point = (actual_grid)*self.prob_size_cell
  			cross_poiin[1] = cross_point[1]*self.prob_size_cell
+ 			right = True
  			
  		else:			
  			cross_point = (actual_grid)*self.prob_size_cell
+ 			right = False
+ 	drone_distance_cross_point = cross_point - drone.cur_pos
+ 	grad = math.abs(drone_distance_next_target[0]/drone_distance_next_target[1]) - math.abs(drone_distance_cross_point[0]/drone_distance_cross_point[1])
  	
+ 	if grad > 0:
+ 		if right:
+ 			return (actural_grid, [actual_grid[0]+1, actual_grid[1]])
+ 		else:
+ 			return (actural_grid, [actual_grid[0] -1, actual_grid[1]])
+ 	else:
+		if up:
+ 			return (actural_grid, [actual_grid[0], actual_grid[1] +1])
+ 		else:
+ 			return (actural_grid, [actual_grid[0], actual_grid[1] -1])
