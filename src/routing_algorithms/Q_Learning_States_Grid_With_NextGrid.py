@@ -143,11 +143,8 @@ class AIRouting(BASE_routing):
             
             
             
-            drone_cell_index = util.TraversedCells.coord_to_cell(size_cell=self.simulator.prob_size_cell,
-                                                            width_area=self.simulator.env_width,
-                                                            x_pos=drone.coords[0],  # e.g. 1500
-                                                            y_pos=drone.coords[1])[0]  # e.g. 500
-            print("drone_neighbor: ", drone.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
+            drone_cell_index = self.get_grid_and_next_grid(drone)
+
             
             
             
@@ -226,11 +223,9 @@ class AIRouting(BASE_routing):
         # self.drone.speed
 
         # Only if you need --> several features:
-        self_cell_index = util.TraversedCells.coord_to_cell(size_cell=self.simulator.prob_size_cell,
-                                                        width_area=self.simulator.env_width,
-                                                        x_pos=self.drone.coords[0],  # e.g. 1500
-                                                        y_pos=self.drone.coords[1])[0]  # e.g. 500
-        print("Drone: ", self.drone.identifier, " - i-th cell:",  self_cell_index, " - center:", self.simulator.cell_to_center_coords[self_cell_index])
+        self_cell_index = self.get_grid_and_next_grid(drone)
+
+        #print("Drone: ", self.drone.identifier, " - i-th cell:",  self_cell_index, " - center:", self.simulator.cell_to_center_coords[self_cell_index])
         
         
             
@@ -411,12 +406,8 @@ class AIRouting(BASE_routing):
                     for hello_packet, drone_istance in opt_neighbors:
                      
                         
-                     
-                        drone_cell_index = util.TraversedCells.coord_to_cell(size_cell=self.simulator.prob_size_cell,
-                                                                        width_area=self.simulator.env_width,
-                                                                        x_pos=drone_istance.coords[0],  # e.g. 1500
-                                                                        y_pos=drone_istance.coords[1])[0]  # e.g. 500
-                        print("drone_neighbor: ", drone_istance.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
+                     	drone_cell_index = get_grid_and_next_grid(drone_istance)
+                        #print("drone_neighbor: ", drone_istance.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
                         
                         
                         try:
@@ -591,12 +582,8 @@ class AIRouting(BASE_routing):
                     best_drone_distance_from_depot = exp_distance
                     max_action = drone_istance
                     
-                    
-                    drone_cell_index = util.TraversedCells.coord_to_cell(size_cell=self.simulator.prob_size_cell,
-                                                                    width_area=self.simulator.env_width,
-                                                                    x_pos=drone_istance.coords[0],  # e.g. 1500
-                                                                    y_pos=drone_istance.coords[1])[0]  # e.g. 500
-                    print("drone_neighbor: ", drone_istance.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
+                    drone_cell_index = get_grid_and_next_grid(drone_istance)
+                    #print("drone_neighbor: ", drone_istance.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
                     
                     
                     try:
@@ -729,18 +716,12 @@ class AIRouting(BASE_routing):
  			return (actural_grid, [actual_grid[0], actual_grid[1] -1])
  	
  	
- 		
- 	
- 		
- 			
- 	
-
  
    def get_grid_and_next_grid(self, drone):
-    	actural_grid = self.drone.cur_pos % self.simulator.prob_size_cell
+    	actural_grid = self.drone.coords % self.simulator.prob_size_cell
     	if next_target % self.simulator.prob_size_cell == actual_grid:
     		return (actual_grid, actual_grid)
-    	drone_distance_next_target = drone.next_target - drone.cur_pos
+    	drone_distance_next_target = drone.next_target - drone.coords
    	if drone_distance_next_target[0] > 0:
    		up = True
  		if drone_distance_next_target[1] > 0:
@@ -761,7 +742,7 @@ class AIRouting(BASE_routing):
  		else:			
  			cross_point = (actual_grid)*self.prob_size_cell
  			right = False
- 	drone_distance_cross_point = cross_point - drone.cur_pos
+ 	drone_distance_cross_point = cross_point - drone.coords
  	grad = math.abs(drone_distance_next_target[0]/drone_distance_next_target[1]) - math.abs(drone_distance_cross_point[0]/drone_distance_cross_point[1])
  	
  	if grad > 0:
