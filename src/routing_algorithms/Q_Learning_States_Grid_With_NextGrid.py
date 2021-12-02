@@ -1,12 +1,3 @@
-"""
-PER CHI LEGGERÃ€: NON SO COME IMPORTARE DA SRC.UTILITIES.CONFIG IL NUMERO
-DI DRONI CHE SONO INIZIALIZZATI LÃ€
-
-L'IDEA ORA È CHE OGNI NODO È UNO STATO E LE AZIONI SONO TUTTI I POSSIBILI INVII AI
-NODI VICINI PER UN DETERMINATO PACCHETTO
-
-"""
-
 from operator import ne
 import numpy as np
 import math
@@ -142,12 +133,8 @@ class AIRouting(BASE_routing):
                 temp_, max_q = 0, 0
 
 
+            drone_cell_index = self.get_grid_and_next_grid(drone)
 
-            drone_cell_index = util.TraversedCells.coord_to_cell(size_cell=self.simulator.prob_size_cell,
-                                                            width_area=self.simulator.env_width,
-                                                            x_pos=drone.coords[0],  # e.g. 1500
-                                                            y_pos=drone.coords[1])[0]  # e.g. 500
-            print("drone_neighbor: ", drone.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
 
 
 
@@ -158,13 +145,13 @@ class AIRouting(BASE_routing):
 
                 try:
 
-                    q[(drone_cell_index, 2)] = q[(drone_cell_index, 2)] + alpha*(R + gamma* max_q - q[(drone_cell_index, 2)] )
+                    q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 2] = q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 2] + alpha*(R + gamma* max_q - q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 2] )
 
                 except Exception as e:
 
-                    q[(drone_cell_index, 2)] = 10
+                    q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 2] = 10
 
-                    q[(drone_cell_index, 2)] = q[(drone_cell_index, 2)] + alpha*(R + gamma* max_q - q[(drone_cell_index, 2)] )
+                    q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 2] = q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 2] + alpha*(R + gamma* max_q - q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 2] )
 
 
             #the packet remain to the node
@@ -226,11 +213,7 @@ class AIRouting(BASE_routing):
         # self.drone.speed
 
         # Only if you need --> several features:
-        self_cell_index = util.TraversedCells.coord_to_cell(size_cell=self.simulator.prob_size_cell,
-                                                        width_area=self.simulator.env_width,
-                                                        x_pos=self.drone.coords[0],  # e.g. 1500
-                                                        y_pos=self.drone.coords[1])[0]  # e.g. 500
-        print("Drone: ", self.drone.identifier, " - i-th cell:",  self_cell_index, " - center:", self.simulator.cell_to_center_coords[self_cell_index])
+        self_cell_index = self.get_grid_and_next_grid(self.drone)
 
 
 
@@ -267,34 +250,34 @@ class AIRouting(BASE_routing):
 
             try:
 
-                a = q[(self_cell_index, 0)]
+                a = q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 0]
 
             except:
 
-                q[(self_cell_index, 0)] = 10
+                q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 0] = 10
 
 
-                a = q[(self_cell_index, 0)]
-
-            try:
-
-                b = q[(self_cell_index, 1)]
-
-            except Exception as e:
-
-                q[(self_cell_index, 1)] = 10
-
-                b = q[(self_cell_index, 1)]
+                a = q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 0]
 
             try:
 
-                c = q[(self_cell_index, 2)]
+                b = q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 1]
 
             except Exception as e:
 
-                q[(self_cell_index, 2)] = 10
+                q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 1] = 10
 
-                c = q[(self_cell_index, 2)]
+                b = q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 1]
+
+            try:
+
+                c = q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 2]
+
+            except Exception as e:
+
+                q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 2] = 10
+
+                c = q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 2]
 
 
 
@@ -304,7 +287,7 @@ class AIRouting(BASE_routing):
 
                 #we calculate the maximum value of the three possible actions
                 #NOT NECESSARY TRY-EXCEPT, EXECUTED JUST BEFORE
-                l = [q[(self_cell_index, 0)], q[(self_cell_index, 1)], q[(self_cell_index, 2)]]
+                l = [q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 0], q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 1], q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 2]]
                 m = max(l)
 
                 #we set, in a global variable, that this drone
@@ -333,7 +316,7 @@ class AIRouting(BASE_routing):
 
                 #we take the maximum value, for the reward calculation
                 #NOT NECESSARY TRY-EXCEPT, EXECUTED JUST BEFORE
-                l = [q[(self_cell_index, 0)], q[(self_cell_index, 1)], q[(self_cell_index, 2)]]
+                l = [q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 0], q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 1], q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 2]]
                 m = max(l)
 
                 #we save this result, in practise
@@ -358,7 +341,7 @@ class AIRouting(BASE_routing):
                 "FIRST PHASE -- TAKE MAX Rs FOR a -- SLIDE 32"
                 #we take the maximum value, for the reward calculation
                 #NOT NECESSARY TRY-EXCEPT, EXECUTED JUST BEFORE
-                l = [q[(self_cell_index, 0)], q[(self_cell_index, 1)], q[(self_cell_index, 2)]]
+                l = [q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 0], q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 1], q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 2]]
                 m = max(l)
 
                 #we initialize two differente variables to do some things
@@ -412,31 +395,28 @@ class AIRouting(BASE_routing):
 
 
 
-                        drone_cell_index = util.TraversedCells.coord_to_cell(size_cell=self.simulator.prob_size_cell,
-                                                                        width_area=self.simulator.env_width,
-                                                                        x_pos=drone_istance.coords[0],  # e.g. 1500
-                                                                        y_pos=drone_istance.coords[1])[0]  # e.g. 500
-                        print("drone_neighbor: ", drone_istance.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
+
+                        drone_cell_index = self.get_grid_and_next_grid(drone_istance)
 
 
                         try:
 
 
-                            if (q[(drone_cell_index, i)] > return_m):
+                            if (q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], i] > return_m):
 
 
-                                return_m = q[(drone_cell_index, i)]
+                                return_m = q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], i]
 
 
                         except Exception as e:
 
 
-                            q[(drone_cell_index, i)] = 10
+                            q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], i] = 10
 
 
-                            if (q[(drone_cell_index, i)] > return_m):
+                            if (q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], i] > return_m):
 
-                                return_m = q[(drone_cell_index, i)]
+                                return_m = q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], i]
 
 
                 #save everything for the capturing of the reward in
@@ -474,35 +454,35 @@ class AIRouting(BASE_routing):
             #we take the maximum value, for the reward calculation
             try:
 
-                l.append(q[(self_cell_index, 0)])
+                l.append(q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 0])
 
             except Exception as e:
 
-                q[(self_cell_index, 0)] = 10
+                q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 0] = 10
 
-                l.append(q[(self_cell_index, 0)])
+                l.append(q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 0])
 
 
             try:
 
-                l.append(q[(self_cell_index, 1)])
+                l.append(q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 1])
 
             except Exception as e:
 
-                q[(self_cell_index, 1)] = 10
+                q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 1] = 10
 
-                l.append(q[(self_cell_index, 1)])
+                l.append(q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 1])
 
 
             try:
 
-                l.append(q[(self_cell_index, 2)])
+                l.append(q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 2])
 
             except Exception as e:
 
-                q[(self_cell_index, 2)] = 10
+                q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 2] = 10
 
-                l.append(q[(self_cell_index, 2)])
+                l.append(q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 2])
 
 
 
@@ -592,22 +572,20 @@ class AIRouting(BASE_routing):
                     max_action = drone_istance
 
 
-                    drone_cell_index = util.TraversedCells.coord_to_cell(size_cell=self.simulator.prob_size_cell,
-                                                                    width_area=self.simulator.env_width,
-                                                                    x_pos=drone_istance.coords[0],  # e.g. 1500
-                                                                    y_pos=drone_istance.coords[1])[0]  # e.g. 500
-                    print("drone_neighbor: ", drone_istance.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
+                    drone_cell_index = self.get_grid_and_next_grid(drone_istance)
+                                                                 
+
 
 
                     try:
 
-                        return_m = q[(drone_cell_index, 1)]
+                        return_m = q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 1]
 
                     except Exception as e:
 
-                        q[(drone_cell_index, 1)] = 10
+                        q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 1] = 10
 
-                        return_m = q[(drone_cell_index, 1)]
+                        return_m = q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 1]
 
 
 
@@ -690,14 +668,16 @@ class AIRouting(BASE_routing):
         pass
 
     def get_grid_and_next_grid(self):
+    	return self.get_grid_and_next_grid(self.drone)
+    	'''
     	actural_grid = numpy.asarray(self.drone.coords) % self.simulator.prob_size_cell
     	if numpy.asarray(self.drone.next_target()) % self.simulator.prob_size_cell == actual_grid:
     		return (actual_grid, actual_grid)
     	drone_distance_next_target = numpy.asarray(self.drone.next_target()) - numpy.asarray(self.drone.coords)
-   	if drone_distance_next_target[0] > 0:
-   		up = True
- 		if drone_distance_next_target[1] > 0:
- 			cross_point = (actual_grid + 1)*self.prob_size_cell
+    	if drone_distance_next_target[0] > 0:
+    		up = True
+    		if drone_distance_next_target[1] > 0:
+    			cross_point = (actual_grid + 1)*self.prob_size_cell
  			right = True
  		else:
  			cross_point = (actual_grid)*self.prob_size_cell
@@ -727,6 +707,8 @@ class AIRouting(BASE_routing):
  			return (actural_grid, [actual_grid[0], actual_grid[1] +1])
  		else:
  			return (actural_grid, [actual_grid[0], actual_grid[1] -1])
+ 			
+ 	'''
 
 
 
@@ -734,43 +716,40 @@ class AIRouting(BASE_routing):
 
 
 
-
-
-   def get_grid_and_next_grid(self, drone):
-    	actural_grid = numpy.asarray(self.drone.cur_pos) % self.simulator.prob_size_cell
-    	if next_target % self.simulator.prob_size_cell == actual_grid:
+    def get_grid_and_next_grid(self, drone):
+    	actual_grid = np.asarray(self.drone.coords) // self.simulator.prob_size_cell
+    	if (np.asarray(drone.next_target()) // self.simulator.prob_size_cell == actual_grid).all:
     		return (actual_grid, actual_grid)
-    	drone_distance_next_target = drone.next_target - numpy.asarray(drone.cur_pos)
-   	if drone_distance_next_target[0] > 0:
-   		up = True
- 		if drone_distance_next_target[1] > 0:
- 			cross_point = (actual_grid + 1)*self.prob_size_cell
- 			right = True
- 		else:
- 			cross_point = (actual_grid)*self.prob_size_cell
- 			cross_poiin[0] = cross_point[0]*self.prob_size_cell
- 			right = False
-
- 	else:
-		up = False
- 		if drone_distance_next_target[1] > 0:
- 			cross_point = (actual_grid)*self.prob_size_cell
- 			cross_poiin[1] = cross_point[1]*self.prob_size_cell
- 			right = True
-
- 		else:
- 			cross_point = (actual_grid)*self.prob_size_cell
- 			right = False
- 	drone_distance_cross_point = cross_point - numpy.asarray(drone.cur_pos)
- 	grad = math.abs(drone_distance_next_target[0]/drone_distance_next_target[1]) - math.abs(drone_distance_cross_point[0]/drone_distance_cross_point[1])
-
- 	if grad > 0:
- 		if right:
- 			return (actural_grid, [actual_grid[0]+1, actual_grid[1]])
- 		else:
- 			return (actural_grid, [actual_grid[0] -1, actual_grid[1]])
- 	else:
-		if up:
- 			return (actural_grid, [actual_grid[0], actual_grid[1] +1])
- 		else:
- 			return (actural_grid, [actual_grid[0], actual_grid[1] -1])
+    	drone_distance_next_target = np.asarray(drone.next_target()) - np.asarray(drone.coords)
+    	if drone_distance_next_target[0] > 0:
+    		up = True
+    		if drone_distance_next_target[1] > 0:
+    			cross_point = (actual_grid + 1)*self.prob_size_cell
+    			right = True
+    		else:
+    			cross_point = (actual_grid)*self.prob_size_cell
+    			cross_poiin[0] = cross_point[0]*self.prob_size_cell
+    			right = False
+    	else:
+    		up = False
+    		if drone_distance_next_target[1] > 0:
+    			cross_point = (actual_grid)*self.prob_size_cell
+    			cross_poiin[1] = cross_point[1]*self.prob_size_cell
+    			right = True
+    		else:
+    			cross_point = (actual_grid)*self.prob_size_cell
+    			right = False
+    	drone_distance_cross_point = cross_point - numpy.asarray(drone.cur_pos)
+    	print(actual_grid)
+    	grad = math.abs(drone_distance_next_target[0]/drone_distance_next_target[1]) - math.abs(drone_distance_cross_point[0]/drone_distance_cross_point[1])
+    	if grad > 0:
+    		if right:
+    			return (actual_grid, [actual_grid[0]+1, actual_grid[1]])
+    		else:
+    			return (actual_grid, [actual_grid[0] -1, actual_grid[1]])
+    	else:
+    		if up:
+    			return (actual_grid, [actual_grid[0], actual_grid[1] +1])
+    		else:
+    			return (actual_grid, [actual_grid[0], actual_grid[1] -1])
+ 			
