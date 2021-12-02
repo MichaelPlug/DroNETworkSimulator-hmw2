@@ -322,7 +322,7 @@ class AIRouting(BASE_routing):
                 
                 #we calculate the maximum value of the three possible actions
                 #NOT NECESSARY TRY-EXCEPT, EXECUTED JUST BEFORE
-                l = [q[(self_cell_index, 0)], self.drone.q[(self_cell_index, 1)], self.drone.q[(self_cell_index, 2)]]
+                l = [self.drone.q[(self_cell_index, 0)], self.drone.q[(self_cell_index, 1)], self.drone.q[(self_cell_index, 2)]]
                 m = max(l)
                 
                 #we set, in a global variable, that this drone 
@@ -334,12 +334,12 @@ class AIRouting(BASE_routing):
                 
                 
                 try:
-                    v_star[self.drone.identifier] = v_star[self.drone.identifier] + m
+                    self.drone.v_star[self.drone.identifier] = self.drone.v_star[self.drone.identifier] + m
                 
                 except Exception as e:
                     
-                    v_star[self.drone.identifier] = 0
-                    v_star[self.drone.identifier] = v_star[self.drone.identifier] + m
+                    self.drone.v_star[self.drone.identifier] = 0
+                    self.drone.v_star[self.drone.identifier] = self.drone.v_star[self.drone.identifier] + m
                 
                 
                 #do anything
@@ -351,19 +351,19 @@ class AIRouting(BASE_routing):
                 
                 #we take the maximum value, for the reward calculation
                 #NOT NECESSARY TRY-EXCEPT, EXECUTED JUST BEFORE
-                l = [q[(self_cell_index, 0)], self.drone.q[(self_cell_index, 1)], self.drone.q[(self_cell_index, 2)]]
+                l = [self.drone.q[(self_cell_index, 0)], self.drone.q[(self_cell_index, 1)], self.drone.q[(self_cell_index, 2)]]
                 m = max(l)
                 
                 #we save this result, in practise
                 self.drone.s[(self.drone.identifier, pkd.event_ref.identifier)] = (-1, m)
                 
                 try:
-                    v_star[self.drone.identifier] = v_star[self.drone.identifier] + m
+                    self.drone.v_star[self.drone.identifier] = self.drone.v_star[self.drone.identifier] + m
                 
                 except Exception as e:
                     
-                    v_star[self.drone.identifier] = 0
-                    v_star[self.drone.identifier] = v_star[self.drone.identifier] + m
+                    self.drone.v_star[self.drone.identifier] = 0
+                    self.drone.v_star[self.drone.identifier] = self.drone.v_star[self.drone.identifier] + m
                 
                 
                 #at the end we perform the action to go to the depot, so
@@ -376,7 +376,7 @@ class AIRouting(BASE_routing):
                 "FIRST PHASE -- TAKE MAX Rs FOR a -- SLIDE 32"
                 #we take the maximum value, for the reward calculation
                 #NOT NECESSARY TRY-EXCEPT, EXECUTED JUST BEFORE
-                l = [q[(self_cell_index, 0)], self.drone.q[(self_cell_index, 1)], self.drone.q[(self_cell_index, 2)]]
+                l = [self.drone.q[(self_cell_index, 0)], self.drone.q[(self_cell_index, 1)], self.drone.q[(self_cell_index, 2)]]
                 m = max(l)
                 
                 #we initialize two differente variables to do some things
@@ -389,25 +389,25 @@ class AIRouting(BASE_routing):
                 for hello_packet, drone_istance in opt_neighbors:
                     
                     try:
-                    	sum_v_star = sum_v_star + v_star[drone_istance.identifier]
+                    	sum_v_star = sum_v_star + self.drone.v_star[drone_istance.identifier]
                     except:
                     	self.drone.v_star[drone_istance.identifier] = 0
-                    	sum_v_star = sum_v_star + v_star[drone_istance.identifier]
+                    	sum_v_star = sum_v_star + self.drone.v_star[drone_istance.identifier]
                 
                 
                 try:
                     
                     #set the v_star attribute
-                    v_star[self.drone.identifier] = v_star[self.drone.identifier] + m + gamma*sum_v_star
+                    self.drone.v_star[self.drone.identifier] = self.drone.v_star[self.drone.identifier] + m + gamma*sum_v_star
                 
                 except Exception as e:
                     
-                    v_star[self.drone.identifier] = 0
+                    self.drone.v_star[self.drone.identifier] = 0
                     
-                    v_star[self.drone.identifier] = v_star[self.drone.identifier] + m + gamma*sum_v_star
+                    self.drone.v_star[self.drone.identifier] = self.drone.v_star[self.drone.identifier] + m + gamma*sum_v_star
                 
                 
-                max_v_star = v_star[self.drone.identifier]
+                max_v_star = self.drone.v_star[self.drone.identifier]
                 
                 max_action = None
 
@@ -418,9 +418,9 @@ class AIRouting(BASE_routing):
                     
 
                     #because we must identify max_a Q(S' , a)
-                    if (v_star[drone_istance.identifier] > max_v_star):
+                    if (self.drone.v_star[drone_istance.identifier] > max_v_star):
                         
-                        max_v_star = v_star[drone_istance.identifier]     
+                        max_v_star = self.drone.v_star[drone_istance.identifier]     
                         max_action = drone_istance
                         
                 #max of possible actions
@@ -444,7 +444,7 @@ class AIRouting(BASE_routing):
                         try:
                             
                             
-                            if (q[(drone_cell_index, i)] > return_m):
+                            if (self.drone.q[(drone_cell_index, i)] > return_m):
                              
                              
                                 return_m = self.drone.q[(drone_cell_index, i)]
@@ -456,7 +456,7 @@ class AIRouting(BASE_routing):
                             self.drone.q[(drone_cell_index, i)] = 10
                         
                         
-                            if (q[(drone_cell_index, i)] > return_m):
+                            if (self.drone.q[(drone_cell_index, i)] > return_m):
                              
                                 return_m = self.drone.q[(drone_cell_index, i)]
                    
@@ -496,35 +496,35 @@ class AIRouting(BASE_routing):
             #we take the maximum value, for the reward calculation
             try:
                 
-                l.append(q[(self_cell_index, 0)])
+                l.append(self.drone.q[(self_cell_index, 0)])
                 
             except Exception as e:
                 
                 self.drone.q[(self_cell_index, 0)] = 10
                 
-                l.append(q[(self_cell_index, 0)])
+                l.append(self.drone.q[(self_cell_index, 0)])
                 
             
             try:
                 
-                l.append(q[(self_cell_index, 1)])
+                l.append(self.drone.q[(self_cell_index, 1)])
                 
             except Exception as e:
                 
                 self.drone.q[(self_cell_index, 1)] = 10
                 
-                l.append(q[(self_cell_index, 1)])
+                l.append(self.drone.q[(self_cell_index, 1)])
                 
                 
             try:
                 
-                l.append(q[(self_cell_index, 2)])
+                l.append(self.drone.q[(self_cell_index, 2)])
                 
             except Exception as e:
                 
                 self.drone.q[(self_cell_index, 2)] = 10
                 
-                l.append(q[(self_cell_index, 2)])
+                l.append(self.drone.q[(self_cell_index, 2)])
                 
             
     
@@ -539,12 +539,12 @@ class AIRouting(BASE_routing):
                 self.drone.s[(self.drone.identifier, pkd.event_ref.identifier)] = (-1, m)
                 
                 try:
-                    v_star[self.drone.identifier] = v_star[self.drone.identifier] + m
+                    self.drone.v_star[self.drone.identifier] = self.drone.v_star[self.drone.identifier] + m
                 
                 except Exception as e:
                     
-                    v_star[self.drone.identifier] = 0
-                    v_star[self.drone.identifier] = v_star[self.drone.identifier] + m
+                    self.drone.v_star[self.drone.identifier] = 0
+                    self.drone.v_star[self.drone.identifier] = self.drone.v_star[self.drone.identifier] + m
                 
                 
                 #at the end we perform the action to go to the depot, so
@@ -571,29 +571,29 @@ class AIRouting(BASE_routing):
                 try:
                     
                 
-                    sum_v_star = sum_v_star + v_star[drone_istance.identifier]
+                    sum_v_star = sum_v_star + self.drone.v_star[drone_istance.identifier]
             
                 except Exception as e:
                     
-                    v_star[drone_istance.identifier] = 0
+                    self.drone.v_star[drone_istance.identifier] = 0
                     
-                    sum_v_star = sum_v_star + v_star[drone_istance.identifier]
+                    sum_v_star = sum_v_star + self.drone.v_star[drone_istance.identifier]
             
             
             
             try:
                 
                 #set the v_star attribute
-                v_star[self.drone.identifier] = v_star[self.drone.identifier] + m + gamma*sum_v_star
+                self.drone.v_star[self.drone.identifier] = self.drone.v_star[self.drone.identifier] + m + gamma*sum_v_star
             
             except Exception as e:
                 
-                v_star[self.drone.identifier] = 0
+                self.drone.v_star[self.drone.identifier] = 0
                 
-                v_star[self.drone.identifier] = v_star[self.drone.identifier] + m + gamma*sum_v_star
+                self.drone.v_star[self.drone.identifier] = self.drone.v_star[self.drone.identifier] + m + gamma*sum_v_star
             
             
-            max_v_star = v_star[self.drone.identifier]
+            max_v_star = self.drone.v_star[self.drone.identifier]
             
             max_action = None
 
@@ -650,12 +650,12 @@ class AIRouting(BASE_routing):
                 
                 
                 try:
-                    v_star[self.drone.identifier] = v_star[self.drone.identifier] + m
+                    self.drone.v_star[self.drone.identifier] = self.drone.v_star[self.drone.identifier] + m
                 
                 except Exception as e:
                     
-                    v_star[self.drone.identifier] = 0
-                    v_star[self.drone.identifier] = v_star[self.drone.identifier] + m
+                    self.drone.v_star[self.drone.identifier] = 0
+                    self.drone.v_star[self.drone.identifier] = self.drone.v_star[self.drone.identifier] + m
                 
                 
                 

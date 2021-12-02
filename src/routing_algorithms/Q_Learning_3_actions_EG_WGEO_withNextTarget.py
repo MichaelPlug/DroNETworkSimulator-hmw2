@@ -49,9 +49,6 @@ epsilon = random.random()
 #normalize the random value from min_epsilon to max_epsilon
 epsilon = min_epsilon + (epsilon * (max_epsilon - min_epsilon))
 
-Reward = {}
-
-
 alpha = 0.5
 
 gamma = 0.9

@@ -28,7 +28,7 @@ import src.utilities.config as config #try self.simulator.n_drones
 #import the library for random values
 import random
 
-    
+
 #seed for random values, just to have consistence on values 
 #TODO
 #eliminate after a while
@@ -42,10 +42,11 @@ max_epsilon = 0.25
 georouting_on_next_step = True
 
 #take a random value between 0,1
-#epsilon = 1.0
+epsilon = random.random()
 
 #normalize the random value from min_epsilon to max_epsilon
-#epsilon = min_epsilon + (epsilon * (max_epsilon - min_epsilon))
+epsilon = min_epsilon + (epsilon * (max_epsilon - min_epsilon))
+
 
 alpha = 0.5
 
@@ -60,10 +61,6 @@ class AIRouting(BASE_routing):
         # random generator
         self.rnd_for_routing_ai = np.random.RandomState(self.simulator.seed)
         self.taken_actions = {}  #id event : (old_action)
-        setattr(self, 'epsilon', 1)
-        self.epsilon = min_epsilon + (random.random()* (max_epsilon - min_epsilon))
-        
-        setattr(self, 'k', 0)
         
 
     def feedback(self, drone, id_event, delay, outcome):
@@ -82,6 +79,7 @@ class AIRouting(BASE_routing):
         
         print(self, drone, id_event, delay, outcome)
         
+        
         try:
         	appo = self.drone.q
         except:
@@ -95,9 +93,8 @@ class AIRouting(BASE_routing):
         try:
          	appo = self.drone.v_star
         except: 
-        	setattr(self.drone, 'v_star', {})        
-            
-            
+        	setattr(self.drone, 'v_star', {})
+	            
         #if the packet isn't still treated, then we train system for it
         if True:
    
@@ -220,9 +217,6 @@ class AIRouting(BASE_routing):
         #we generate a random value, for the epsilon-greedy strategy
         rand = random.random()
         
-        #Check the state of the drone, if it should be go back to depet 
-        #when the distance from it and its trajectory is minimized
-        
         try:
         	appo = self.drone.q
         except:
@@ -237,43 +231,12 @@ class AIRouting(BASE_routing):
          	appo = self.drone.v_star
         except: 
         	setattr(self.drone, 'v_star', {})
-        			
-        try: 
-        	mustGoBack = self.drone.mustGoBack
-        except:
-        	mustGoBack = False
-        	setattr(self.drone, 'mustGoBack', mustGoBack)
-        for pkt, d in opt_neighbors:
-        	if d.move_routing:
-        		self.drone.mustGoBack = False
-        		return d        	
-       	       	
-       	'''
-       	for pkd, d in opt_neighbors:
-       		if d.buffer_length() > 0:
-       			if  util.euclidean_distance(self.simulator.depot.coords, self.drone.coords) > util.euclidean_distance(self.simulator.depot.coords, pkd.cur_pos):
-       				self.mustGoBack = False
-       				return d
-       	'''			
-       	
-       	for pkd, d in opt_neighbors:
-       		try:
-       			if d.mustGoBack:
-       				return d
-       		except:
-       			continue	
-        if mustGoBack:
-        	if self.isGoingAway():
-        		print("I'm going back")
-        		self.drone.mustGoBack = False
-        		return -1
-        	else:
-        		return None
-        		
-	
+	            
+                    
+        
         #if we are in greedy case
-        if (rand < 1 - self.epsilon):
-
+        if (rand < 1 - epsilon):
+        
             #we calculate what is the best action to perform, if it is 
             #the action of None, -1 or pass to any neighbour
             
@@ -362,17 +325,9 @@ class AIRouting(BASE_routing):
                 
                 #at the end we perform the action to go to the depot, so
                 #we left the mission for this purpose
-                
-                if self.isGoingAway():
-                     return -1
-                try: 
-                     self.drone.mustGoBack = True
-                except:
-                     setattr(self.drone, 'mustGoBack', True)	
-                return None
+                return -1
             
             #if the best choice to do is to pass the packet to the neighbors
-
             if (b >= a and b >= c):
                 
                 "FIRST PHASE -- TAKE MAX Rs FOR a -- SLIDE 32"
@@ -390,7 +345,11 @@ class AIRouting(BASE_routing):
                 #we meed to know sum of v* of all neighbors
                 for hello_packet, drone_istance in opt_neighbors:
                     
-                    sum_v_star = sum_v_star + self.drone.v_star[drone_istance.identifier]
+                    try:
+                    	sum_v_star = sum_v_star + self.drone.v_star[drone_istance.identifier]
+                    except:
+                    	self.drone.v_star[drone_istance.identifier] = 0
+                    	sum_v_star = sum_v_star + self.drone.v_star[drone_istance.identifier]
                 
                 
                 try:
@@ -460,7 +419,7 @@ class AIRouting(BASE_routing):
                     
                     self.drone.s[(max_action.identifier, pkd.event_ref.identifier)] = (1, return_m)
                 
-                self.drone.mustGoBack = False
+                
                 return max_action
                 
                 
@@ -471,9 +430,8 @@ class AIRouting(BASE_routing):
         #in the random case (epsilon case)    
         else:
             
-            #self.epsilon = self.epsilon - 0.10
-            #self.epsilon = self.epsilon**2
-            #self.epsilon = self.epsilon + 0.10
+            
+            
             
             """ arg min score  -> geographical approach, take the drone closest to the depot """
             best_drone_distance_from_depot = util.euclidean_distance(self.simulator.depot.coords, self.drone.coords)
@@ -539,16 +497,7 @@ class AIRouting(BASE_routing):
                 
                 #at the end we perform the action to go to the depot, so
                 #we left the mission for this purpose
-                
-
-        
-                if self.isGoingAway:
-                     return -1
-                try: 
-                     self.drone.mustGoBack = True
-                except:
-                     setattr(self.drone, 'mustGoBack', True)	
-                return None
+                return -1
 
             
             "FIRST PHASE -- TAKE MAX Rs FOR a -- SLIDE 32"
@@ -653,7 +602,7 @@ class AIRouting(BASE_routing):
                 
             
             else:
-                self.drone.mustGoBack = False
+                
                 self.drone.s[(max_action.identifier, pkd.event_ref.identifier)] = (1, return_m)
             
             
@@ -676,37 +625,68 @@ class AIRouting(BASE_routing):
             This method is called at the end of the simulation, can be usefull to print some
                 metrics about the learning process
         """
-        print(self.k)
-        print("sono k")
+        
+        """
+        print("Hello", q)
+        print("Alo", n)
+        print("Salut", c)
+        print(epsilon)
+        """
+        
         pass
 
     
-    def isGoingAway(self):
-    	a = util.euclidean_distance(self.simulator.depot.coords, self.drone.next_target())
-    	b = util.euclidean_distance(self.drone.coords, self.drone.next_target())
-    	c = util.euclidean_distance(self.simulator.depot.coords, self.drone.coords)
-    	if b == 0:
-    		return False
-    	if a == 0:
-    		return False
-    	if c == 0:
-    		return False
-    	
-    	import math
-    	arg = (b**2 + c**2 - a**2) / (2.0*b*c)
-    	if arg > 1.0: 		
-    		arg = 1
-    	if arg < -1.0:
-    	    	arg = -1
-    	alpha = math.acos(arg)
-    	return alpha >= math.pi/2
-    	
-    def imlating(self, cur_step):
-        """ return true if exist a packet that is expiring and must be returned to the depot as soon as possible
-            -> start to move manually to the depot.
+    
+    def compute_extimed_position(self, hello_packet):
+        """ estimate the current position of the drone """
 
-            This method is optional, there is flag src.utilities.config.ROUTING_IF_EXPIRING
-        """
-        time_to_depot = util.euclidean_distance(self.drone.depot.coords, self.drone.coords) / self.drone.speed
-        event_time_to_dead = (self.drone.tightest_event_deadline - cur_step) * self.drone.simulator.time_step_duration
-        return event_time_to_dead - 5 < time_to_depot <= event_time_to_dead  # 2000 seconds of tolerance
+        # get known info about the neighbor drone
+        hello_message_time = hello_packet.time_step_creation
+        known_position = hello_packet.cur_pos
+        known_speed = hello_packet.speed
+        known_next_target = hello_packet.next_target
+
+        # compute the time elapsed since the message sent and now
+        # elapsed_time in seconds = elapsed_time in steps * step_duration_in_seconds
+        elapsed_time = (self.simulator.cur_step - hello_message_time) * self.simulator.time_step_duration  # seconds
+
+        # distance traveled by drone
+        distance_traveled = elapsed_time * known_speed
+
+        # direction vector
+        a, b = np.asarray(known_position), np.asarray(known_next_target)
+        if np.linalg.norm(b - a) != 0:
+        	v_ = (b - a) / np.linalg.norm(b - a)
+        else:
+        	v_ = 0
+
+        # compute the expect position
+        c = a + (distance_traveled * v_)
+
+        return tuple(c)
+
+    def compute_distance_to_trajectory_s(self):
+        p1 = np.array([self.drone.coordself.drone.s[0], self.drone.coordself.drone.s[1]])
+        p2 = np.array([self.drone.next_target()[0], self.drone.next_target()[1]])
+        p3 = np.array([self.drone.depot.coordself.drone.s[0],self.drone.depot.coordself.drone.s[1]])
+
+        
+        if np.linalg.norm(p2-p1) != 0:
+        	return np.linalg.norm(np.cross(p2-p1, p1-p3))/np.linalg.norm(p2-p1)
+        else: 
+        	return 0
+
+    def compute_distance_to_trajectory(self, hello_packet):
+
+        exp_position = self.compute_extimed_position(hello_packet)
+       # exp_position = hello_packet.cur_pos
+
+        #MAYBE IT SHOULD BE p1 = np.array([exp_position[0][0], exp_position[0][1]])
+        p1 = np.array([exp_position[0], exp_position[1]])
+        p2 = np.array([hello_packet.next_target[0], hello_packet.next_target[1]])
+        p3 = np.array([self.drone.depot.coordself.drone.s[0],self.drone.depot.coordself.drone.s[1]])
+        
+        if np.linalg.norm(p2-p1) != 0:
+        	return np.linalg.norm(np.cross(p2-p1, p1-p3))/np.linalg.norm(p2-p1)
+        else: 
+        	return 0
