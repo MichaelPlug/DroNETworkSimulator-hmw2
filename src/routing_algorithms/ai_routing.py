@@ -58,6 +58,7 @@ class AIRouting(BASE_routing):
         # random generator
         self.rnd_for_routing_ai = np.random.RandomState(self.simulator.seed)
         self.taken_actions = {}  #id event : (old_action)
+        setattr(self, 'count', 0)
 
     def feedback(self, drone, id_event, delay, outcome):
 
@@ -665,6 +666,7 @@ class AIRouting(BASE_routing):
             This method is called at the end of the simulation, can be usefull to print some
                 metrics about the learning process
         """
+        print(self.count)
         pass
 
     def get_grid_and_next_grid(self):
@@ -718,30 +720,43 @@ class AIRouting(BASE_routing):
 
     def get_grid_and_next_grid(self, drone):
     	actual_grid = np.asarray(self.drone.coords) // self.simulator.prob_size_cell
-    	if (np.asarray(drone.next_target()) // self.simulator.prob_size_cell == actual_grid).all:
+    	agx = actual_grid[0]
+    	agy = actual_grid[1]
+    	future_grid = np.asarray(drone.next_target()) // self.simulator.prob_size_cell
+    	fgx = future_grid[0]
+    	fgy = future_grid[1]
+    	if agx == fgx and agy == fgy:
     		return (actual_grid, actual_grid)
+    	return (actual_grid, actual_grid)
+    	'''
+    	if (np.asarray(drone.next_target()) // self.simulator.prob_size_cell == actual_grid).any:
+    		print(np.asarray(drone.next_target()) // self.simulator.prob_size_cell)
+    		print(actual_grid)
+    		self.count = self.count -1 
+    	'''
+
+
     	drone_distance_next_target = np.asarray(drone.next_target()) - np.asarray(drone.coords)
     	if drone_distance_next_target[0] > 0:
     		up = True
     		if drone_distance_next_target[1] > 0:
-    			cross_point = (actual_grid + 1)*self.prob_size_cell
+    			cross_point = (actual_grid + 1)*self.simulator.prob_size_cell
     			right = True
     		else:
-    			cross_point = (actual_grid)*self.prob_size_cell
-    			cross_poiin[0] = cross_point[0]*self.prob_size_cell
+    			cross_point = (actual_grid)*self.simulator.prob_size_cell
+    			cross_point[0] = cross_point[0]*self.simulator.prob_size_cell
     			right = False
     	else:
     		up = False
     		if drone_distance_next_target[1] > 0:
-    			cross_point = (actual_grid)*self.prob_size_cell
-    			cross_poiin[1] = cross_point[1]*self.prob_size_cell
+    			cross_point = (actual_grid)*self.simulator.prob_size_cell
+    			cross_point[1] = cross_point[1]*self.simulator.prob_size_cell
     			right = True
     		else:
-    			cross_point = (actual_grid)*self.prob_size_cell
+    			cross_point = (actual_grid)*self.simulator.prob_size_cell
     			right = False
-    	drone_distance_cross_point = cross_point - numpy.asarray(drone.cur_pos)
-    	print(actual_grid)
-    	grad = math.abs(drone_distance_next_target[0]/drone_distance_next_target[1]) - math.abs(drone_distance_cross_point[0]/drone_distance_cross_point[1])
+    	drone_distance_cross_point = cross_point - np.asarray(drone.coords)
+    	grad = abs(drone_distance_next_target[0]/drone_distance_next_target[1]) - abs(drone_distance_cross_point[0]/drone_distance_cross_point[1])
     	if grad > 0:
     		if right:
     			return (actual_grid, [actual_grid[0]+1, actual_grid[1]])
