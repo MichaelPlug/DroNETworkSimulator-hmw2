@@ -416,7 +416,10 @@ class AIRouting(BASE_routing):
                 #loop for every neighbors
                 for hello_packet, drone_istance in opt_neighbors:
                     
-
+                    try:
+                    	ap = self.drone.v_star[drone_istance.identifier]
+                    except:
+                    	self.drone.v_star[drone_istance.identifier] = 0
                     #because we must identify max_a Q(S' , a)
                     if (self.drone.v_star[drone_istance.identifier] > max_v_star):
                         

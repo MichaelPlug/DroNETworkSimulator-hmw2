@@ -103,8 +103,8 @@ class AIRouting(BASE_routing):
 
             "Doubt: i don't know the utility of this"
             if id_event in self.taken_actions:
-                action = self.taken_action self.drone.q[id_event]
-                del self.taken_action self.drone.q[id_event]
+                action = self.taken_actions[id_event]
+                del self.taken_actions[id_event]
             "End of doubt"
 
             #if the packet is arrived isn't more valid
@@ -326,7 +326,7 @@ class AIRouting(BASE_routing):
                 #for this packet has perform the action to maintain
                 #the packet and to remain to its trajectory and it is
                 #saved also the maximum possible value
-                 self.drone.q[(self.drone.identifier, pkd.event_ref.identifier)] = (0, m)
+                self.drone.q[(self.drone.identifier, pkd.event_ref.identifier)] = (0, m)
 
 
 
@@ -352,7 +352,7 @@ class AIRouting(BASE_routing):
                 m = max(l)
 
                 #we save this result, in practise
-                 self.drone.q[(self.drone.identifier, pkd.event_ref.identifier)] = (-1, m)
+                self.drone.q[(self.drone.identifier, pkd.event_ref.identifier)] = (-1, m)
 
                 try:
                     self.drone.v_star[self.drone.identifier] = self.drone.v_star[self.drone.identifier] + m
@@ -414,8 +414,13 @@ class AIRouting(BASE_routing):
                 for hello_packet, drone_istance in opt_neighbors:
 
 
+
+                    try:
+                    	ap = self.drone.v_star[drone_istance.identifier]
+                    except:
+                    	self.drone.v_star[drone_istance.identifier] = 0
                     #because we must identify max_a Q(S' , a)
-                    if (v_star[drone_istance.identifier] > max_v_star):
+                    if (self.drone.v_star[drone_istance.identifier] > max_v_star):
 
                         max_v_star = self.drone.v_star[drone_istance.identifier]
                         max_action = drone_istance
@@ -530,7 +535,7 @@ class AIRouting(BASE_routing):
                 m = max(l)
 
                 #we save this result, in practise
-                 self.drone.q[(self.drone.identifier, pkd.event_ref.identifier)] = (-1, m)
+                self.drone.q[(self.drone.identifier, pkd.event_ref.identifier)] = (-1, m)
 
                 try:
                     self.drone.v_star[self.drone.identifier] = self.drone.v_star[self.drone.identifier] + m
@@ -638,7 +643,7 @@ class AIRouting(BASE_routing):
                 #for this packet has perform the action to maintain
                 #the packet and to remain to its trajectory and it is
                 #saved also the maximum possible value
-                 self.drone.q[(self.drone.identifier, pkd.event_ref.identifier)] = (0, return_m)
+                self.drone.q[(self.drone.identifier, pkd.event_ref.identifier)] = (0, return_m)
 
 
 
