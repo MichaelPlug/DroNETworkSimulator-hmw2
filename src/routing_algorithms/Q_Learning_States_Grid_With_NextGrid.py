@@ -718,7 +718,14 @@ class AIRouting(BASE_routing):
     			cross_point = (actual_grid)*self.simulator.prob_size_cell
     			right = False
     	drone_distance_cross_point = cross_point - np.asarray(drone.coords)
-    	grad = abs(drone_distance_next_target[0]/drone_distance_next_target[1]) - abs(drone_distance_cross_point[0]/drone_distance_cross_point[1])
+    	if drone_distance_next_target[1] == 0:
+    		grad = -1
+    	else:
+    		if drone_distance_cross_point[1] == 0:
+    			grad = 1
+    		else:
+    			grad = abs(drone_distance_next_target[0]/drone_distance_next_target[1]) - abs(drone_distance_cross_point[0]/drone_distance_cross_point[1])
+
     	if grad > 0:
     		if right:
     			return (actual_grid, [actual_grid[0]+1, actual_grid[1]])
