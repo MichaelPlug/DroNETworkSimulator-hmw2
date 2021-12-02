@@ -29,10 +29,6 @@ import src.utilities.config as config #try self.simulator.n_drones
 import random
 
 
-q = {}
-
-
-
     
 #seed for random values, just to have consistence on values 
 #TODO
@@ -52,9 +48,6 @@ epsilon = random.random()
 #normalize the random value from min_epsilon to max_epsilon
 epsilon = min_epsilon + (epsilon * (max_epsilon - min_epsilon))
 
-s = {}
-
-v_star = {}
 
 
 alpha = 0.5

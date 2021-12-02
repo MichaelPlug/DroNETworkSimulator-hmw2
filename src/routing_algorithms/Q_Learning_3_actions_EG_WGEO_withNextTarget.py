@@ -29,9 +29,6 @@ import src.utilities.config as config #try self.simulator.n_drones
 import random
 
 
-q = {}
-
-
 
     
 #seed for random values, just to have consistence on values 
@@ -51,10 +48,6 @@ epsilon = random.random()
 
 #normalize the random value from min_epsilon to max_epsilon
 epsilon = min_epsilon + (epsilon * (max_epsilon - min_epsilon))
-
-s = {}
-
-v_star = {}
 
 Reward = {}
 
@@ -105,8 +98,11 @@ class AIRouting(BASE_routing):
          	appo = self.drone.v_star
         except: 
         	setattr(self.drone, 'v_star', {})        
-                
-            
+         
+        try:
+         	appo = self.drone.Reward
+        except: 
+        	setattr(self.drone, 'Reward', {})                   
             
             
             
@@ -152,7 +148,7 @@ class AIRouting(BASE_routing):
             
             try:
                 
-                N_T = Reward[drone.identifier, id_event]
+                N_T =  self.drone.Reward[drone.identifier, id_event]
             
             except Exception as e:
                 
@@ -256,7 +252,11 @@ class AIRouting(BASE_routing):
         except: 
         	setattr(self.drone, 'v_star', {})        
                     
-        
+        try:
+         	appo = self.drone.Reward
+        except: 
+        	setattr(self.drone, 'Reward', {})                   
+                    
         #if we are in greedy case
         if (rand < 1 - epsilon):
         
@@ -321,7 +321,7 @@ class AIRouting(BASE_routing):
                      self.drone.v_star[self.drone.identifier] = 0
                      self.drone.v_star[self.drone.identifier] =  self.drone.v_star[self.drone.identifier] + m
                 
-                Reward[self.drone.identifier, pkd.event_ref.identifier] = self.drone.next_target()
+                 self.drone.Reward[self.drone.identifier, pkd.event_ref.identifier] = self.drone.next_target()
                 
                 #do anything
                 return None
@@ -446,11 +446,11 @@ class AIRouting(BASE_routing):
                 
                 if (max_action == None):
                     
-                    Reward[self.drone.identifier, pkd.event_ref.identifier] = self.drone.next_target()
+                     self.drone.Reward[self.drone.identifier, pkd.event_ref.identifier] = self.drone.next_target()
                     
                 else:
                 
-                    Reward[max_action.identifier, pkd.event_ref.identifier] = max_action.next_target()
+                     self.drone.Reward[max_action.identifier, pkd.event_ref.identifier] = max_action.next_target()
                 
                 return max_action
                 
@@ -640,11 +640,11 @@ class AIRouting(BASE_routing):
             
             if (max_action == None):
                 
-                Reward[self.drone.identifier, pkd.event_ref.identifier] = self.drone.next_target()
+                 self.drone.Reward[self.drone.identifier, pkd.event_ref.identifier] = self.drone.next_target()
                 
             else:
                 
-                Reward[max_action.identifier, pkd.event_ref.identifier] = max_action.next_target()
+                 self.drone.Reward[max_action.identifier, pkd.event_ref.identifier] = max_action.next_target()
             return max_action
     
     
