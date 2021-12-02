@@ -147,6 +147,7 @@ class AIRouting(BASE_routing):
                 try:
 
                     q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 2] = q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 2] + alpha*(R + gamma* max_q - q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 2] )
+                    
 
                 except Exception as e:
 
@@ -161,13 +162,14 @@ class AIRouting(BASE_routing):
 
                 try:
 
-                    q[(drone.identifier, 0)] = q[(drone.identifier, 0)] + alpha*(R + gamma* max_q - q[(drone.identifier, 0)])
+                    q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 0]  = q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 0] + alpha*(R + gamma* max_q - q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 0])
 
                 except Exception as e:
 
-                    q[(drone.identifier, 0)] = 10
+                    q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 0] = 10
 
-                    q[(drone.identifier, 0)] = q[(drone.identifier, 0)] + alpha*(R + gamma* max_q - q[(drone.identifier, 0)])
+                    q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 0]  = q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 0] + alpha*(R + gamma* max_q - q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 0])
+
 
 
 
@@ -177,13 +179,14 @@ class AIRouting(BASE_routing):
 
                 try:
 
-                    q[(drone.identifier, 1)] = q[(drone.identifier, 1)] + alpha*(R + gamma* max_q - q[(drone.identifier, 1)] )
+                    q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 1]  = q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 1]  + alpha*(R + gamma* max_q - q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 1]  )
 
                 except Exception as e:
 
-                    q[(drone.identifier, 1)] = 10
+                    q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 1]  = 10
 
-                    q[(drone.identifier, 1)] = q[(drone.identifier, 1)] + alpha*(R + gamma* max_q - q[(drone.identifier, 1)] )
+                    q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 1]  = q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 1]  + alpha*(R + gamma* max_q - q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 1]  )
+
 
 
 
@@ -266,7 +269,7 @@ class AIRouting(BASE_routing):
 
             except Exception as e:
 
-                q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 1] = 10
+                q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 1] = 12
 
                 b = q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 1]
 
@@ -399,14 +402,11 @@ class AIRouting(BASE_routing):
 
                         drone_cell_index = self.get_grid_and_next_grid(drone_istance)
 
-
                         try:
-
+                        
 
                             if (q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], i] > return_m):
-
-
-                                return_m = q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], i]
+                            	return_m = q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], i]  
 
 
                         except Exception as e:
@@ -457,6 +457,7 @@ class AIRouting(BASE_routing):
 
                 l.append(q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 0])
 
+
             except Exception as e:
 
                 q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 0] = 10
@@ -468,6 +469,7 @@ class AIRouting(BASE_routing):
 
                 l.append(q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 1])
 
+
             except Exception as e:
 
                 q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 1] = 10
@@ -478,6 +480,7 @@ class AIRouting(BASE_routing):
             try:
 
                 l.append(q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 2])
+
 
             except Exception as e:
 
@@ -579,8 +582,9 @@ class AIRouting(BASE_routing):
 
 
                     try:
-
+                    
                         return_m = q[drone_cell_index[0][0], drone_cell_index[0][1], drone_cell_index[1][0], drone_cell_index[1][1], 1]
+
 
                     except Exception as e:
 

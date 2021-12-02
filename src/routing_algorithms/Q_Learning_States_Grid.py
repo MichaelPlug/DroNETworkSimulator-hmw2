@@ -147,7 +147,7 @@ class AIRouting(BASE_routing):
                                                             width_area=self.simulator.env_width,
                                                             x_pos=drone.coords[0],  # e.g. 1500
                                                             y_pos=drone.coords[1])[0]  # e.g. 500
-            print("drone_neighbor: ", drone.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
+            #print("drone_neighbor: ", drone.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
             
             
             
@@ -173,14 +173,13 @@ class AIRouting(BASE_routing):
                 
                 try:
         
-                    q[(drone.identifier, 0)] = q[(drone.identifier, 0)] + alpha*(R + gamma* max_q - q[(drone.identifier, 0)])
+                    q[(drone_cell_index, 0)] = q[(drone_cell_index, 0)] + alpha*(R + gamma* max_q - q[(drone_cell_index, 0)])
                 
                 except Exception as e:
                     
-                    q[(drone.identifier, 0)] = 10
+                    q[(drone_cell_index, 0)] = 10
                     
-                    q[(drone.identifier, 0)] = q[(drone.identifier, 0)] + alpha*(R + gamma* max_q - q[(drone.identifier, 0)])
-                
+                    q[(drone_cell_index, 0)] = q[(drone_cell_index, 0)] + alpha*(R + gamma* max_q - q[(drone_cell_index, 0)])                    
         
             
             #the packet was passed to another drone
@@ -189,13 +188,13 @@ class AIRouting(BASE_routing):
                 
                 try:
                 
-                    q[(drone.identifier, 1)] = q[(drone.identifier, 1)] + alpha*(R + gamma* max_q - q[(drone.identifier, 1)] )
+                    q[(drone_cell_index, 1)] = q[(drone_cell_index, 1)] + alpha*(R + gamma* max_q - q[(drone_cell_index, 1)] )
                 
                 except Exception as e:
                     
-                    q[(drone.identifier, 1)] = 10
+                    q[(drone_cell_index, 1)] = 10
 
-                    q[(drone.identifier, 1)] = q[(drone.identifier, 1)] + alpha*(R + gamma* max_q - q[(drone.identifier, 1)] )
+                    q[(drone_cell_index, 1)] = q[(drone_cell_index, 1)] + alpha*(R + gamma* max_q - q[(drone_cell_index, 1)] )
 
                 
             
@@ -230,7 +229,7 @@ class AIRouting(BASE_routing):
                                                         width_area=self.simulator.env_width,
                                                         x_pos=self.drone.coords[0],  # e.g. 1500
                                                         y_pos=self.drone.coords[1])[0]  # e.g. 500
-        print("Drone: ", self.drone.identifier, " - i-th cell:",  self_cell_index, " - center:", self.simulator.cell_to_center_coords[self_cell_index])
+        #	print("Drone: ", self.drone.identifier, " - i-th cell:",  self_cell_index, " - center:", self.simulator.cell_to_center_coords[self_cell_index])
         
         
             
@@ -416,7 +415,7 @@ class AIRouting(BASE_routing):
                                                                         width_area=self.simulator.env_width,
                                                                         x_pos=drone_istance.coords[0],  # e.g. 1500
                                                                         y_pos=drone_istance.coords[1])[0]  # e.g. 500
-                        print("drone_neighbor: ", drone_istance.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
+                        #print("drone_neighbor: ", drone_istance.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
                         
                         
                         try:
@@ -596,7 +595,7 @@ class AIRouting(BASE_routing):
                                                                     width_area=self.simulator.env_width,
                                                                     x_pos=drone_istance.coords[0],  # e.g. 1500
                                                                     y_pos=drone_istance.coords[1])[0]  # e.g. 500
-                    print("drone_neighbor: ", drone_istance.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
+                    #print("drone_neighbor: ", drone_istance.identifier, " - i-th cell:",  drone_cell_index, " - center:", self.simulator.cell_to_center_coords[drone_cell_index])
                     
                     
                     try:
