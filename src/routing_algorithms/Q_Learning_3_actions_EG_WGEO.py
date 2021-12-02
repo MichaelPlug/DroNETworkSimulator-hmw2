@@ -345,7 +345,11 @@ class AIRouting(BASE_routing):
                 #we meed to know sum of v* of all neighbors
                 for hello_packet, drone_istance in opt_neighbors:
                     
-                    sum_v_star = sum_v_star + self.drone.v_star[drone_istance.identifier]
+                    try:
+                    	sum_v_star = sum_v_star + self.drone.v_star[drone_istance.identifier]
+                    except:
+                    	self.drone.v_star[drone_istance.identifier] = 0
+                    	sum_v_star = sum_v_star + self.drone.v_star[drone_istance.identifier]
                 
                 
                 try:
