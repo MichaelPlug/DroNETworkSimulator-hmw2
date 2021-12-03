@@ -262,13 +262,6 @@ class AIRouting(BASE_routing):
        				return d
        		except:
        			continue
-	'''
-       	#if one of the packets is to expiring go back to the depot before it happen
-       	if self.imlating(self.simulator.cur_step):
-       		self.k = self.k + 1
-       		self.drone.mustGoBack = False
-       		return -1
-       	'''	
      		  	
        			
         if mustGoBack:
