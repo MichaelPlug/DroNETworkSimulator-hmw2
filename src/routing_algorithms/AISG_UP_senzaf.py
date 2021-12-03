@@ -285,6 +285,8 @@ class AIRouting(BASE_routing):
         except:
             newEps = min_epsilon
 
+        rand2 = random.random()
+        newEps = min_epsilon + (rand2 *(max_epsilon - min_epsilon))
               
 #        newEps = min_epsilon
   #      print(newEps)
@@ -294,7 +296,7 @@ class AIRouting(BASE_routing):
         #newEps = max_epsilon
  #       newEps =  min_epsilon + (math.exp(-1*(tot_n**2)/(k**4)) * (max_epsilon - min_epsilon)) 
 
-        if rand < newEps:
+        if  rand< newEps:
             
             max_action = None
             

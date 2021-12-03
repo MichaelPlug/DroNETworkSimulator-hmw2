@@ -239,6 +239,7 @@ class AIRouting(BASE_routing):
         imthebest = False
             
 	bestD = None
+	
         for pkt, d in opt_neighbord:
        		if d.buffer_length() > 0::	     			
        				rap = self.drone.q[(self.drone.identifier), 1] + self.drone.q[(self.drone.identifier), 0] / self.drone

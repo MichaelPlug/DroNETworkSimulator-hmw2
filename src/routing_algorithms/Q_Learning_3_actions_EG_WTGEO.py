@@ -247,7 +247,8 @@ class AIRouting(BASE_routing):
         	if d.move_routing:
         		self.drone.mustGoBack = False
         		return d        	
-       	       	
+       	
+
        	'''
        	for pkd, d in opt_neighbors:
        		if d.buffer_length() > 0:
@@ -463,10 +464,9 @@ class AIRouting(BASE_routing):
                     self.drone.s[(self.drone.identifier, pkd.event_ref.identifier)] = (0, return_m)
                 
                 else:
-                    
+                    self.drone.mustGoBack = False
                     self.drone.s[(max_action.identifier, pkd.event_ref.identifier)] = (1, return_m)
                 
-                self.drone.mustGoBack = False
                 return max_action
                 
                 
@@ -715,4 +715,4 @@ class AIRouting(BASE_routing):
         """
         time_to_depot = util.euclidean_distance(self.drone.depot.coords, self.drone.coords) / self.drone.speed
         event_time_to_dead = (self.drone.tightest_event_deadline - cur_step) * self.drone.simulator.time_step_duration
-        return event_time_to_dead - 5 < time_to_depot <= event_time_to_dead  # 2000 seconds of tolerance
+        return event_time_to_dead - 5 < time_to_depot <= event_time_to_dead  # 5 seconds of tolerance
