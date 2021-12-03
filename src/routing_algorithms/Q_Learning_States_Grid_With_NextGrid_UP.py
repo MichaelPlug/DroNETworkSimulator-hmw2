@@ -254,7 +254,31 @@ class AIRouting(BASE_routing):
         except: 
         	setattr(self.drone, 'v_star', {})   
             
-
+        try: 
+        	mustGoBack = self.drone.mustGoBack
+        except:
+        	mustGoBack = False
+        	setattr(self.drone, 'mustGoBack', mustGoBack)
+        for pkt, d in opt_neighbors:
+        	if d.move_routing:
+        		self.drone.mustGoBack = False
+        		return d        
+        		
+       	for pkd, d in opt_neighbors:
+       		try:
+       			if d.mustGoBack:
+       				return d
+       		except:
+       			continue
+     		  	
+       			
+        if mustGoBack:
+        	if self.isGoingAway():
+        		print("I'm going back")
+        		self.drone.mustGoBack = False
+        		return -1
+        	else:
+        		return None
 
         #we take our distance from the depot
         #best_drone_distance_from_depot = util.euclidean_distance(self.simulator.depot.coords, self.drone.coords)
@@ -365,8 +389,13 @@ class AIRouting(BASE_routing):
 
                 #at the end we perform the action to go to the depot, so
                 #we left the mission for this purpose
-                return -1
-
+                if self.isGoingAway():
+                     return -1
+                try: 
+                     self.drone.mustGoBack = True
+                except:
+                     setattr(self.drone, 'mustGoBack', True)	
+                return None
             #if the best choice to do is to pass the packet to the neighbors
             if (b >= a and b >= c):
 
@@ -465,9 +494,10 @@ class AIRouting(BASE_routing):
 
                 else:
 
+                     self.drone.mustGoBack = False
                      self.drone.s[(max_action.identifier, pkd.event_ref.identifier)] = (1, return_m)
 
-
+                
                 return max_action
 
 
@@ -548,7 +578,13 @@ class AIRouting(BASE_routing):
 
                 #at the end we perform the action to go to the depot, so
                 #we left the mission for this purpose
-                return -1
+                if self.isGoingAway:
+                     return -1
+                try: 
+                     self.drone.mustGoBack = True
+                except:
+                     setattr(self.drone, 'mustGoBack', True)	
+                return None
 
 
             "FIRST PHASE -- TAKE MAX Rs FOR a -- SLIDE 32"
@@ -661,6 +697,7 @@ class AIRouting(BASE_routing):
 
             else:
 
+                 self.drone.mustGoBack = False
                  self.drone.s[(max_action.identifier, pkd.event_ref.identifier)] = (1, return_m)
 
 
@@ -773,4 +810,34 @@ class AIRouting(BASE_routing):
     			return (actual_grid, [actual_grid[0], actual_grid[1] +1])
     		else:
     			return (actual_grid, [actual_grid[0], actual_grid[1] -1])
+    			
+    def isGoingAway(self):
+    	a = util.euclidean_distance(self.simulator.depot.coords, self.drone.next_target())
+    	b = util.euclidean_distance(self.drone.coords, self.drone.next_target())
+    	c = util.euclidean_distance(self.simulator.depot.coords, self.drone.coords)
+    	if b == 0:
+    		return False
+    	if a == 0:
+    		return False
+    	if c == 0:
+    		return False
+    	
+    	import math
+    	arg = (b**2 + c**2 - a**2) / (2.0*b*c)
+    	if arg > 1.0: 		
+    		arg = 1
+    	if arg < -1.0:
+    	    	arg = -1
+    	alpha = math.acos(arg)
+    	return alpha >= math.pi/2
+    	
+    def imlating(self, cur_step):
+        """ return true if exist a packet that is expiring and must be returned to the depot as soon as possible
+            -> start to move manually to the depot.
+
+            This method is optional, there is flag src.utilities.config.ROUTING_IF_EXPIRING
+        """
+        time_to_depot = util.euclidean_distance(self.drone.depot.coords, self.drone.coords) / self.drone.speed
+        event_time_to_dead = (self.drone.tightest_event_deadline - cur_step) * self.drone.simulator.time_step_duration
+        return event_time_to_dead - 5 < time_to_depot <= event_time_to_dead  # 5 seconds of tolerance
  			
