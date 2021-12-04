@@ -659,7 +659,6 @@ class AIRouting(BASE_routing):
         print("Salut", c)
         print(epsilon)
         """
-        print(q)
         pass
 
     
