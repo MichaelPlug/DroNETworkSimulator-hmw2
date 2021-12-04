@@ -249,7 +249,7 @@ class AIRouting(BASE_routing):
             max_key = 0
             
             
-            for key, key2 in q:
+            for key, key2 in self.drone.q:
                 
                 if (flag == 0):
                     
@@ -391,7 +391,7 @@ class AIRouting(BASE_routing):
                 
                 
                 
-                for key, key2 in q:
+                for key, key2 in self.drone.q:
                     
                     if (key2 == '-1' or key2 == None):
                         
@@ -469,7 +469,7 @@ class AIRouting(BASE_routing):
             max_key = 0
             
             
-            for key, key2 in q:
+            for key, key2 in self.drone.q:
                 
                 if (flag == 0):
                     
@@ -582,7 +582,7 @@ class AIRouting(BASE_routing):
                     max_element = 10
                     
                     
-                    for key, key2 in q:
+                    for key, key2 in self.drone.q:
                         
                         
                     
