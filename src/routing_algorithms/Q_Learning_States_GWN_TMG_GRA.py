@@ -269,46 +269,9 @@ class AIRouting(BASE_routing):
        			if d.mustGoBack:
        				return d
        		except:
-       			continue
-     	'''
-     	if True:
-     	    try:
+       			continue   
+        bestGravityCenter = None
 
-                a = self.drone.q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 0]
-
-            except:
-
-                self.drone.q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 0] = 10
-
-
-                a = self.drone.q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 0]
-
-            try:
-
-                b = self.drone.q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 1]
-
-            except Exception as e:
-
-                self.drone.q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 1] = 12
-
-                b = self.drone.q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 1]
-
-            try:
-
-                c = self.drone.q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 2]
-
-            except Exception as e:
-
-                self.drone.q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 2] = 10
-
-                c = self.drone.q[self_cell_index[0][0], self_cell_index[0][1], self_cell_index[1][0], self_cell_index[1][1], 2]	
-        '''        
-             	
-   	bestGravityCenter = None
-   	try:
-   		rap = a + c - b
-   	except:
-   		rap = a + c - b
        	for pkd, d in opt_neighbors:
        		if d.buffer_length() > 0:
        			if  util.euclidean_distance(self.simulator.depot.coords, self.drone.coords) > util.euclidean_distance(self.simulator.depot.coords, pkd.cur_pos):
@@ -610,7 +573,7 @@ class AIRouting(BASE_routing):
                 m = max(l)
 
                 #we save this result, in practise
-                self.drone.q[(self.drone.identifier, pkd.event_ref.identifier)] = (-1, m)
+                self.drone.s[(self.drone.identifier, pkd.event_ref.identifier)] = (-1, m)
 
                 try:
                     self.drone.v_star[self.drone.identifier] = self.drone.v_star[self.drone.identifier] + m
@@ -724,7 +687,7 @@ class AIRouting(BASE_routing):
                 #for this packet has perform the action to maintain
                 #the packet and to remain to its trajectory and it is
                 #saved also the maximum possible value
-                self.drone.q[(self.drone.identifier, pkd.event_ref.identifier)] = (0, return_m)
+                self.drone.s[(self.drone.identifier, pkd.event_ref.identifier)] = (0, return_m)
 
 
 
@@ -743,7 +706,7 @@ class AIRouting(BASE_routing):
             else:
 
                  self.drone.mustGoBack = False
-                 self.drone.q[(max_action.identifier, pkd.event_ref.identifier)] = (1, return_m)
+                 self.drone.s[(max_action.identifier, pkd.event_ref.identifier)] = (1, return_m)
 
 
 
