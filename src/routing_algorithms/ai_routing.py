@@ -141,7 +141,7 @@ class AIRouting(BASE_routing):
 
             try:
 
-                temp_, max_q =  self.drone.q[(drone.identifier, id_event)]
+                temp_, max_q =  self.drone.s[(drone.identifier, id_event)]
 
             except Exception as e:
 
@@ -269,16 +269,9 @@ class AIRouting(BASE_routing):
        			if d.mustGoBack:
        				return d
        		except:
-       			continue     
-        bestGravityCenter = None
-       	for pkd, d in opt_neighbors:
-       		if d.buffer_length() > 0:
-       			if  util.euclidean_distance(self.simulator.depot.coords, self.drone.coords) > util.euclidean_distance(self.simulator.depot.coords, pkd.cur_pos):
-       				self.mustGoBack = False
-       				bestGravityCenter = d
-       				rap = 0
-       				return d
-       				
+       			continue
+     		  	
+       			
         if mustGoBack:
         	if self.isGoingAway():
         		print("I'm going back")
@@ -357,7 +350,7 @@ class AIRouting(BASE_routing):
                 #for this packet has perform the action to maintain
                 #the packet and to remain to its trajectory and it is
                 #saved also the maximum possible value
-                self.drone.q[(self.drone.identifier, pkd.event_ref.identifier)] = (0, m)
+                self.drone.s[(self.drone.identifier, pkd.event_ref.identifier)] = (0, m)
 
 
 
@@ -383,7 +376,7 @@ class AIRouting(BASE_routing):
                 m = max(l)
 
                 #we save this result, in practise
-                self.drone.q[(self.drone.identifier, pkd.event_ref.identifier)] = (-1, m)
+                self.drone.s[(self.drone.identifier, pkd.event_ref.identifier)] = (-1, m)
 
                 try:
                     self.drone.v_star[self.drone.identifier] = self.drone.v_star[self.drone.identifier] + m
@@ -497,12 +490,12 @@ class AIRouting(BASE_routing):
                 #successive phase of feedback
                 if (max_action == None):
 
-                     self.drone.q[(self.drone.identifier, pkd.event_ref.identifier)] = (0, return_m)
+                     self.drone.s[(self.drone.identifier, pkd.event_ref.identifier)] = (0, return_m)
 
                 else:
 
                      self.drone.mustGoBack = False
-                     self.drone.q[(max_action.identifier, pkd.event_ref.identifier)] = (1, return_m)
+                     self.drone.s[(max_action.identifier, pkd.event_ref.identifier)] = (1, return_m)
 
                 
                 return max_action
@@ -572,7 +565,7 @@ class AIRouting(BASE_routing):
                 m = max(l)
 
                 #we save this result, in practise
-                self.drone.q[(self.drone.identifier, pkd.event_ref.identifier)] = (-1, m)
+                self.drone.s[(self.drone.identifier, pkd.event_ref.identifier)] = (-1, m)
 
                 try:
                     self.drone.v_star[self.drone.identifier] = self.drone.v_star[self.drone.identifier] + m
@@ -686,7 +679,7 @@ class AIRouting(BASE_routing):
                 #for this packet has perform the action to maintain
                 #the packet and to remain to its trajectory and it is
                 #saved also the maximum possible value
-                self.drone.q[(self.drone.identifier, pkd.event_ref.identifier)] = (0, return_m)
+                self.drone.s[(self.drone.identifier, pkd.event_ref.identifier)] = (0, return_m)
 
 
 
@@ -705,7 +698,7 @@ class AIRouting(BASE_routing):
             else:
 
                  self.drone.mustGoBack = False
-                 self.drone.q[(max_action.identifier, pkd.event_ref.identifier)] = (1, return_m)
+                 self.drone.s[(max_action.identifier, pkd.event_ref.identifier)] = (1, return_m)
 
 
 
