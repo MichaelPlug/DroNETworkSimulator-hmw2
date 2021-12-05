@@ -1,4 +1,4 @@
-data/
+data
 src/routing_algorithms/__pycache__
 src/utilites
 src/__pycache__
