@@ -1,4 +1,3 @@
-data
 src/routing_algorithms/__pycache__
 src/utilites
 src/__pycache__
@@ -7,3 +6,4 @@ src/experiments
 src/entities
 src/simulation/
 src/utilities/__pycache__
+src/routing_algorithms/ai_routing.py
