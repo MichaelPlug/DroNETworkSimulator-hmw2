@@ -1,0 +1,428 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx}
+
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{float}
+
+\usepackage[T1]{fontenc} 							% imposta la codifica dei font
+\usepackage[utf8]{inputenc} 							% lettere accentate da tastiera
+\usepackage[italian]{babel} 							% per scrivere in italiano
+
+
+
+\usepackage{footmisc}
+
+
+\usepackage{fancyhdr}
+\usepackage{longtable}
+
+
+\usepackage{subfig}
+
+
+\usepackage{listings}
+
+
+\definecolor{mGreen}{rgb}{0,0.6,0}
+\definecolor{mGray}{rgb}{0.5,0.5,0.5}
+\definecolor{mPurple}{rgb}{0.58,0,0.82}
+\definecolor{backgroundColour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{CStyle}{
+    backgroundcolor=\color{backgroundColour},   
+    commentstyle=\color{mGreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{mGray},
+    stringstyle=\color{mPurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    language=C
+}
+
+\addtolength{\headheight}{1.5cm} % make more space for the header
+\pagestyle{fancyplain} % use fancy for all pages except chapter start
+\lhead{\includegraphics[height=0.1cm]{./Images/logo_hidden.png}} % left logo
+\rhead{\includegraphics[height=2.3cm]{./Images/logo.png}} % right logo
+\renewcommand{\headrulewidth}{0pt} % remove rule below header
+
+\usepackage[colorinlistoftodos]{todonotes}
+
+\newcommand\tab[1][1cm]{\hspace*{#1}}
+
+\begin{document}
+
+\begin{titlepage}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % Defines a new command for the horizontal lines, change thickness here
+
+\center % Center everything on the page
+ 
+%----------------------------------------------------------------------------------------
+%	HEADING SECTIONS
+%----------------------------------------------------------------------------------------
+
+\textsc{\LARGE Universita' La Sapienza}\\[1.5cm] % Name of your university/college
+\textsc{\Large Dipartimento di Informatica}\\[0.5cm] % Major heading such as course name
+\textsc{\large Autonomous Networking}\\[0.5cm] % Minor heading such as course title
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\HRule \\[0.4cm]
+{ \huge \bfseries Report Secondo Homework}\\[0.4cm] % Title of your document
+\HRule \\[1.5cm]
+ 
+%----------------------------------------------------------------------------------------
+%	AUTHOR SECTION
+%----------------------------------------------------------------------------------------
+
+\begin{minipage}{0.4\textwidth}
+\begin{flushleft} \large
+\emph{Author:}\\
+Giordano \textsc{Dionisi} 1834919 \\
+
+Mattia \textsc{Lisi} 1709782 \\
+
+Michele \textsc{Spina} 1711821
+
+\end{flushleft}
+\end{minipage}
+~
+\begin{minipage}{0.4\textwidth}
+\begin{flushright} \large
+\emph{Supervisor:} \\
+Prof. Andrea \textsc{Coletta} \\% Supervisor's Name
+Prof.ssa Gaia \textsc{Maselli} % Supervisor's Name
+
+\end{flushright}
+\end{minipage}\\[2cm]
+
+% If you don't want a supervisor, uncomment the two lines below and remove the section above
+%\Large \emph{Author:}\\
+%John \textsc{Smith}\\[3cm] % Your name
+
+%----------------------------------------------------------------------------------------
+%	DATE SECTION
+%----------------------------------------------------------------------------------------
+
+{\large \today}\\[2cm] % Date, change the \today to a set date if you want to be precise
+
+%----------------------------------------------------------------------------------------
+%	LOGO SECTION
+%----------------------------------------------------------------------------------------
+
+\includegraphics[height=3.8cm]{./Images/logo_firstpage.png}\\[3cm] % Include a department/university logo - this will require the graphicx package
+ 
+%----------------------------------------------------------------------------------------
+
+\vfill % Fill the rest of the page with whitespace
+
+
+\end{titlepage}
+
+\tableofcontents
+
+\newpage
+
+\section{Assunzioni}
+
+Si presuppone la lettura/comprensione del primo \textbf{report.} 
+
+\section{Starting Point}
+
+Partiamo dal miglior algoritmo precedente: \textbf{AISG}\footnote{AI Simple Geo.}.
+
+\textbf{Competitor: MGEO} $\rightarrow$ Lavora come il Geographical Algorithm, ma se non ci sono vicini per un drone, allora si ritornerà al depot $\rightarrow$ E' energy-consuming, ma ottiene ottimi risultati.
+
+
+\subsection{Approccio Epsilon-Greedy}
+
+Tutti gli algoritmi utilizzano l'approccio Epsilon-Greedy, perchè precedentemente ha portato risultati eccellenti $\rightarrow$ L'\textbf{Epsilon-Greedy} con probabilità:
+
+\begin{itemize}
+
+    \item \colorbox{yellow}{1-$\epsilon$ sfrutta il Reinforcement-Learning;}
+    
+    \item \colorbox{yellow}{$\epsilon$ sfrutta l'MGEO modificato per aggiornare i valori del Reinforcement-Learning}\footnote{Non si sfrutta l'approccio randomico, perchè precedentemente è stato scadente.}. 
+    
+\end{itemize}
+
+
+\subsubsection{Ritorno dell'OIV}
+
+Precedentemente l'OIV\footnote{Optimistic Initial Value} aveva pessimi risultati $\rightarrow$ Si è risperimentato perchè il problema è diverso, vista la nuova azione.
+
+\textbf{OIV = 10} comporta una successiva migliore decisione sub-ottimale, sperimentalmente: c'è un'\colorbox{yellow}{esplorazione iniziale maggiore}\footnote{Come la funzione \textit{epsilon}, anche la funzione di \textbf{Reward} è la stessa del primo Homework $\rightarrow$ Il valore massimo ottenibile è pari a 2} $\rightarrow$ Il learning per K-Armed Bandit/Q-Learning è migliore. 
+
+Ciò non avveniva precedentemente vista l'assenza del ritorno al depot.
+
+\section{Cosa fare? Migliorare l'Esistente}
+
+\subsection{Da AISG ad AISG\_Updated}
+
+L'\textbf{AISG} non considera il rientro al depot, quindi lo si è modificato $\rightarrow$ \colorbox{yellow}{Quando non ci sono vicini si torna al depot.}
+
+Così si ha:
+
+\begin{enumerate}
+    \item \textbf{Battery-Consuming:} maggiore $\rightarrow$ Più frequentemente si torna al depot: ciò è \colorbox{yellow}{Energy-Consuming;}
+    
+    \item \textbf{Score:} abbastanza concorrente ad MGEO $\rightarrow$ E' un ottimo segnale, visto che si sta sfruttando un semplice \textit{K-Armed Bandit} e non \textit{Q-Learning.}
+\end{enumerate}
+
+E' un'ottima partenza per i successivi algoritmi.
+
+\begin{figure}[H]
+    
+    \subfloat{{\includegraphics[width=8.1cm,height=\textheight,keepaspectratio]{./Images/AISG_AISGUPDATED_MGEO_GEO_score.jpg} }}%
+    \qquad
+    \subfloat{{\includegraphics[width=8.1cm,height=\textheight,keepaspectratio]{./Images/AISG_AISGUPDATED_MGEO_GEO_energy.jpg} }}%
+    \caption{AISG vs AISG\_UPDATED vs MGEO vs GEO}%
+    \label{fig:example}%
+\end{figure}
+
+Si ha anche il \textbf{Geographical Routing} per capire le sue prestazioni $\rightarrow$ Come AISG, anche il GEO non considera il ritorno al depot: questo lo esclude da molte possibili scelte $\rightarrow$ Ha un andamento inferiore rispetto all'MGEO ed all'\textbf{AISG\_Updated.}
+
+\subsection{Problemi..?}
+
+Anche l'AISG\_Updated è lontano dall'MGEO, sopratutto per lo score $\rightarrow$ Il K-Armed Bandit\footnote{Tipologia di \textbf{Reinforcement Learning} utilizzata in AISG Updated} ha \colorbox{yellow}{K azioni ed un solo stato per il sistema}, quindi non sono conosciuti i precedenti avvenimenti $\rightarrow$ Ciò crea problemi, perchè si ha un \colorbox{yellow}{learning molto limitato}\footnote{Anche se una \textbf{convergenza} più veloce} $\rightarrow$ Se i droni non tornano neppure al depot, le prestazioni peggiorano.
+
+\section{Primi Approcci al Q-Learning}
+
+Quindi si passa al \textbf{Q-Learning:} è un'\colorbox{yellow}{estensione del K-Armed Bandit} $\rightarrow$ \colorbox{yellow}{Sfrutta gli stati e la storia passata e si adatta benissimo,} portando risultati sensibilmente migliori.
+
+\subsection{Che decisioni prendere? $\rightarrow$ 2 Actions}
+
+Come implementare una base Q-Learning? 
+
+Supponiamo di avere $\mu$ \textit{droni} $\rightarrow$ Banalmente si hanno $\mu$ \textit{stati.} \colorbox{yellow}{Per ogni stato}\footnote{Ovvero drone, come detto} si hanno due possibili azioni:
+
+\begin{enumerate}
+
+    \item \colorbox{yellow}{Tenere il pacchetto per sè;}
+    
+    \item \colorbox{yellow}{Passare il pacchetto ad un qualsiasi vicino.}
+    
+\end{enumerate}
+
+\textbf{Problema:} \colorbox{yellow}{non sfrutta il ritorno al depot} $\rightarrow$ L'\textit{Energy-Consuming} è bassissimo, ma tantissimi pacchetti scadono, sopratutto con pochi droni. 
+
+\textbf{Ricorda:} l'obiettivo principale è lo score piuttosto che il consumo energetivo $\rightarrow$ Si devono consegnare più pacchetti possibili e perciò 2 Actions non è soddisfacente.
+
+\subsection{3 Actions $\rightarrow$ Torniamo al Depot}
+
+Consideriamo una nuova azione: \textbf{Tornare al Depot.}
+
+Il consumo energetico aumenta, ma le prestazioni migliorano $\rightarrow$ Si è ancora distanti rispetto alle prestazioni dell'MGEO
+
+\subsubsection{Esperimento \textbf{Fallito:} N+1 Actions}
+
+\textbf{Tentativo:} Usare \textbf{N+1 azioni}, ovvero:
+
+\begin{itemize}
+
+    \item \colorbox{yellow}{Tenere il pacchetto;}
+    
+    \item \colorbox{yellow}{Andare al Depot;}
+    \item \colorbox{yellow}{Passare il pacchetto ad uno degli N-1 vicini}\footnote{Non obbligatoriamente tutti contemporaneamente visibili in un certo istante.}.
+    .
+\end{itemize}
+
+\textbf{Problema:} \colorbox{yellow}{mancata convergenza} $\rightarrow$ Non riesce ad imparare abbastanza: a fine simulazione ancora non si è arrivati ad avere scelte significative: l'algoritmo sta ancora in esplorazione $\rightarrow$ Le prestazioni sono disastrose, rispetto agli altri algoritmi.
+
+\subsubsection{Esperimento \textbf{Fallito:} Se Conviene Torno al Depot}
+
+\textbf{Tentativo:} Se si è entro un range dal depot, si ha almeno un pacchetto e non esistono altre possibilità, allora si va al depot 
+
+\textbf{Idea:} \colorbox{yellow}{Rientrare al depot se non c'è eccessivo consumo} $\rightarrow$ Se si sta dall'altra parte dello scenario, si consuma troppa energia e si evita. In tal caso si:
+
+\begin{itemize}
+
+    \item \colorbox{yellow}{Aspetta un drone vicino;}
+    
+    \item \colorbox{yellow}{Mantiene il pacchetto.}
+    
+\end{itemize}
+
+Nessun buon risultato $\rightarrow$ Se un drone è lontano dal depot e non ha vicini, tutti i suoi pacchetti scadono. Essendo lo score l'obiettivo, si ha un tentativo fallito.
+
+\section{Svolta: 3A\_TMGEO}
+
+Definiamo $\xi$ un \textit{drone,} $\zeta$ il suo \textit{buffer,} $\eta$ i \textit{pacchetti} ed $\alpha$ un suo \textit{vicino.} Le seguenti migliorie generano ottimi risultati:
+
+\begin{itemize}
+
+    \item \colorbox{yellow}{Se in $\zeta$ vi è almeno un $\eta$ in scadenza}, allora \colorbox{yellow}{$\xi$ torna al depot,} per evitare che $\eta$ venga perso e che la \textbf{Delivery-Ratio} aumenti (come lo \textbf{Score});
+
+    \item \colorbox{yellow}{Se $\xi$ ha $\eta$ ed $\alpha$ sta andando al depot,} allora \colorbox{yellow}{$\xi$ gli passa $\eta$,} perchè arriverà velocemente, rispetto a cercare altre trasmissioni eventuali.
+    
+    \item  \colorbox{yellow}{Se $\xi$ ha $\eta$ ed $\alpha$ è nello stato \textit{GoMustBack},} allora \colorbox{yellow}{$\xi$ gli passa $\eta$} $\rightarrow$ Con molta probabilità $\eta$ arriverà velocemente, rispetto a cercare altre trasmissioni eventuali.
+    
+    \textbf{Spiegazione \textit{GoMustBack}:} $\xi$ deve ritornare al depot, quindi entra nello stato \textit{GoMustBack}\footnote{Non è uno stato del sistema, quindi per il Q-Learning, ma uno stato personale del drone}.
+    
+    Un drone:
+    
+    \begin{itemize}
+    
+        \item Va in \textit{GoMustBack}. Per esso: 
+    
+        \begin{itemize}
+        
+            \item \colorbox{yellow}{Prosegue lungo la propria traiettoria finchè si sta avvicinando al depot.}\footnote{Possibile osservarlo calcolando l'angolo tra traiettoria del drone e traiettoria che dovrebbe percorrere per tornare al depot.}.
+            
+            \item \colorbox{yellow}{Contrariamente torna al depot.}
+        
+        \end{itemize}
+    
+        \item \colorbox{yellow}{Effettua la scelta migliore secondo il Q-learning.}
+    
+    \end{itemize}
+    
+    Così si massimizzano gli spostamenti utili del drone, minimizzando la lunghezza dei percorsi da e verso il depot.
+    
+ 
+    
+\end{itemize}
+
+Si generano ottimi risultati: 
+
+\begin{figure}[H]
+    
+    \subfloat{{\includegraphics[width=8.1cm,height=\textheight,keepaspectratio]{./Images/3ATMGEO_3AMGEO_MGEO_energy.jpg} }}%
+    \qquad
+    \subfloat{{\includegraphics[width=8.1cm,height=\textheight,keepaspectratio]{./Images/3ATMGEO_3AMGEO_MGEO_score.jpg} }}%
+    \caption{3A\_TMGEO vs 3A\_MGEO vs MGEO}%
+    \label{fig:example}%
+\end{figure}
+
+
+\subsection{Novità: \textbf{Grid Algorithm}}
+
+Considerare i droni come stati comporta una difficile convergenza $\rightarrow$ \colorbox{yellow}{Troppi stati.} 
+
+Non si tiene in considerazione la \textbf{posizione} del drone ed il passaggio di stato dipende dal passaggio del pacchetto da un drone all'altro $\rightarrow$ Ma \colorbox{yellow}{non è importante il drone come soggetto: è importante la sua posizione} $\rightarrow$ Se due droni si trovano nella stessa posizione, essi sono equivalenti.
+
+Nel Grid Algorithm si divide lo scenario in $\beta$ celle $\rightarrow$ \colorbox{yellow}{Ogni cella è uno stato.}
+
+Un drone prende scelte diverse a seconda della sua posizione.
+
+\subsubsection{Miglioria: \textbf{GRID\_W\_NEXT\_UP}}
+
+Il Grid Algorithm utilizza come chiave per il Q-SET\footnote{Quindi come stati.} l'indice della cella $\rightarrow$ \textbf{Approccio debole:} \colorbox{yellow}{non considera la direzione dei droni.}
+
+Il \textbf{GRID\_W\_NEXT\_UP} sfrutta sia l'informazione della propria cella e sia l'informazione della cella che verrà attraversata dalla sua traiettoria. Ciò porta migliorie, perchè si considera anche la direzione: non si considera il \textit{Next\_Target} per evitare una mancata convergenza\footnote{Si è provato anche tale approccio ma è stato fallimentare.} $\rightarrow$ La \textbf{convergenza} è abbastanza veloce, poiché ogni cella ha dai 2 ai 4 vicini\footnote{Ciò non genera troppi stati.}. Al contempo adotta i principi del 3A\_TMGEO.
+
+
+
+\begin{figure}[H]
+    
+    \subfloat{{\includegraphics[width=8.1cm,height=\textheight,keepaspectratio]{./Images/GRIDWGEO_MGEO_3ATMGEO_energy.jpg} }}%
+    \qquad
+    \subfloat{{\includegraphics[width=8.1cm,height=\textheight,keepaspectratio]{./Images/GRIDWGEO_MGEO_3ATMGEO_score.jpg} }}%
+    \caption{GRID\_W\_NEXT\_UP vs MGEO vs 3A\_TMGEO}%
+    \label{fig:example}%
+\end{figure}
+
+\begin{itemize}
+
+    \item \textbf{Score:} \colorbox{yellow}{L'andamento è vicino all'MGEO, con pochi droni} $\rightarrow$ MGEO rientra spesso al depot, mentre GRID\_W\_NEXT\_UP e 3A\_TMGEO sfruttano il Q-Learning; 
+    
+    Considerare come stati le celle e non i droni comporta un miglioramento, perchè due droni nella stessa posizione sono equivalenti $\rightarrow$ Converge prima e quindi \colorbox{yellow}{impara più velocemente e più precisamente;}
+    
+    \item \textbf{Energia:} GRID\_W\_NEXT\_UP ha risultati migliori del 3A\_TMGEO, visto il diverso concetto di \textit{stato} e perchè si impara più velocemente considerando meno frequentemente il ritorno al depot.
+    
+    E' ancora lineare con il numero dei droni rispetto all'MGEO $\rightarrow$ Si torna frequentemente al depot anche se ci sono molti vicini, solo perchè il Q-Learning dice che è l'azione ottimale, quando è sub-ottimale.
+
+\end{itemize}
+
+
+\section{Sviluppi Futuri sullo Score/Batteria}
+
+Si è svolta anche un'indagine per ridurre al minimo l'\textbf{Energy-Consuming} senza perdita di score, o addirittura migliorandolo.
+
+Si sono ridoti i ritorni convogliando i pacchetti su un unico drone quando due o più droni con almeno un pacchetto si incontrano $rightarrow$ Approcci usati: 
+
+\begin{itemize}
+
+    \item \colorbox{yellow}{Convogliare i pacchetti sul drone più vicino al depot;}
+    
+    \item \colorbox{yellow}{Scegliere il drone a seconda del Q-Learning.}
+    
+\end{itemize}
+
+Sono approcci interessanti, che abbassano notevolemente l'Energy-Consuming, ottenendo però uno \textbf{Score} simile agli altri algoritmi $\rightarrow$ Sarebbe interessante approfondire questa ricerca in futuro.
+
+
+\section{Sezioni Implementate per Componenti}
+
+\begin{itemize}
+
+    \item \textbf{Giordano:} E' il principale responsabile della costruzione e realizzazione dei seguenti algoritmi:
+    
+    \begin{itemize}
+        
+        \item \textbf{AISG\_Updated;}
+        
+        \item \textbf{3A\_MGEO;}
+        
+        \item \textbf{2\_Actions;}
+        
+        \item \textbf{N+1 Actions;}
+        
+        \item \textbf{Grid Algorithm.} 
+        
+    \end{itemize}
+    
+    Ha inoltre provveduto in maniera principale alla stesura e realizzazione del \textbf{Report.}
+    
+    \item \textbf{Mattia:} Ha collaborato nelle attività di \textbf{ricerca} sugli \textbf{sviluppi futuri.}
+    
+    \item \textbf{Michele:} Ha ideato e realizzato i seguenti algoritmi:
+    \begin{itemize}
+        
+        \item \textbf{GRID\_W\_NEXT\_UP;}
+
+        \item \textbf{3A\_TMGEO.}
+    
+    \end{itemize}
+    Ha collaborato nella realizzazione degli altri algoritmi e del \textbf{Report,} realizzato i plot e svolto le attività di \textbf{ricerca} sugli \textbf{sviluppi futuri.}
+    
+    
+\end{itemize}
+
+\section{Conclusioni/Appendice}
+
+Il miglior algoritmo realizzato è: \textbf{GRID\_W\_NEXT\_UP.}
+
+Di seguito un riassunto degli gli algoritmi proposti con le varie performance (\textbf{Score/Energia})
+
+\begin{figure}[H]
+    
+    \subfloat{{\includegraphics[width=8.1cm,height=\textheight,keepaspectratio]{./Images/PLOT_TOTALE_energy.jpg} }}%
+    \qquad
+    \subfloat{{\includegraphics[width=8.1cm,height=\textheight,keepaspectratio]{./Images/PLOT_TOTALE_score.jpg} }}%
+    
+    \label{fig:example}%
+\end{figure}
+
+\begin{figure}[H]
+    
+    \subfloat{{\includegraphics[width=8.1cm,height=\textheight,keepaspectratio]{./Images/PLOT_TOTALE_EVENTDEPOT.jpg} }}%
+    \qquad
+    \subfloat{{\includegraphics[width=8.1cm,height=\textheight,keepaspectratio]{./Images/PLOT_TOTALE_latency.jpg} }}%
+    \caption{PLOT TOTALE}%
+    \label{fig:example}%
+\end{figure}
+
+\end{document}
